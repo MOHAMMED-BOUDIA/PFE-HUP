@@ -1,3 +1,4 @@
+import { Droppable } from '@hello-pangea/dnd';
 import TaskCard from './TaskCard';
 
 const TaskColumn = ({
@@ -40,26 +41,38 @@ const TaskColumn = ({
       </div>
 
       {/* Task List */}
-      <div className="flex flex-1 flex-col gap-3 min-h-[400px]">
-        {tasks.length === 0 ? (
-          <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-gray-200 p-6 text-center dark:border-gray-800">
-            <span className="text-xs text-gray-400 dark:text-gray-500">
-              No tasks
-            </span>
+      <Droppable droppableId={status}>
+        {(provided, snapshot) => (
+          <div
+            ref={provided.innerRef}
+            {...provided.droppableProps}
+            className={`flex flex-1 flex-col gap-3 min-h-[400px] rounded-xl p-2 transition-colors ${
+              snapshot.isDraggingOver ? 'bg-indigo-50/50 dark:bg-indigo-950/20' : ''
+            }`}
+          >
+            {tasks.length === 0 && !snapshot.isDraggingOver ? (
+              <div className="flex flex-1 items-center justify-center rounded-xl border border-dashed border-gray-200 p-6 text-center dark:border-gray-800">
+                <span className="text-xs text-gray-400 dark:text-gray-500">
+                  No tasks
+                </span>
+              </div>
+            ) : (
+              tasks.map((task, index) => (
+                <TaskCard
+                  key={task._id}
+                  task={task}
+                  index={index}
+                  onEdit={onEdit}
+                  onDelete={onDelete}
+                  onStatusChange={onStatusChange}
+                  teamMembers={teamMembers}
+                />
+              ))
+            )}
+            {provided.placeholder}
           </div>
-        ) : (
-          tasks.map((task) => (
-            <TaskCard
-              key={task._id}
-              task={task}
-              onEdit={onEdit}
-              onDelete={onDelete}
-              onStatusChange={onStatusChange}
-              teamMembers={teamMembers}
-            />
-          ))
         )}
-      </div>
+      </Droppable>
     </div>
   );
 };

@@ -5,9 +5,11 @@ import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../api/axios';
 import Loader from '../components/common/Loader';
 import StatusBadge from '../components/common/StatusBadge';
+import { useConfirm } from '../context/ModalContext';
 
 const AdminPanel = () => {
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [activeTab, setActiveTab] = useState('users');
   const [usersList, setUsersList] = useState([]);
   const [projectsList, setProjectsList] = useState([]);
@@ -52,7 +54,7 @@ const AdminPanel = () => {
       toast.error('You cannot delete your own admin account.');
       return;
     }
-    if (!window.confirm('Are you sure you want to delete this user? This will remove all their associations.')) {
+    if (!await confirm({ title: 'Delete User', message: 'Are you sure you want to delete this user? This will remove all their associations.', confirmLabel: 'Delete', destructive: true })) {
       return;
     }
 
@@ -67,7 +69,7 @@ const AdminPanel = () => {
   };
 
   const handleDeleteProject = async (projectId) => {
-    if (!window.confirm('Are you sure you want to delete this project? This cannot be undone.')) {
+    if (!await confirm({ title: 'Delete Project', message: 'Are you sure you want to delete this project? This cannot be undone.', confirmLabel: 'Delete', destructive: true })) {
       return;
     }
 
@@ -101,7 +103,7 @@ const AdminPanel = () => {
     switch (role) {
       case 'admin':
         return 'bg-purple-50 text-purple-700 border-purple-100 dark:bg-purple-950/20 dark:text-purple-400 dark:border-purple-900/40';
-      case 'supervisor':
+      case 'instructor':
         return 'bg-sky-50 text-sky-700 border-sky-100 dark:bg-sky-950/20 dark:text-sky-400 dark:border-sky-900/40';
       case 'student':
       default:

@@ -1,5 +1,6 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { FaPlus, FaFilter, FaTasks, FaFolderOpen } from 'react-icons/fa';
+import { DragDropContext } from '@hello-pangea/dnd';
 import { toast } from 'react-toastify';
 import axiosInstance from '../api/axios';
 import TaskColumn from '../components/task/TaskColumn';
@@ -7,8 +8,10 @@ import TaskForm from '../components/task/TaskForm';
 import Modal from '../components/common/Modal';
 import Loader from '../components/common/Loader';
 import EmptyState from '../components/common/EmptyState';
+import { useConfirm } from '../context/ModalContext';
 
 const Tasks = () => {
+  const confirm = useConfirm();
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState('');
   const [selectedProject, setSelectedProject] = useState(null);
@@ -123,7 +126,8 @@ const Tasks = () => {
   };
 
   const handleDeleteTask = async (taskId) => {
-    if (!window.confirm('Are you sure you want to delete this task?')) return;
+    const ok = await confirm({ title: 'Delete Task', message: 'Are you sure you want to delete this task?', confirmLabel: 'Delete', destructive: true });
+    if (!ok) return;
 
     try {
       await axiosInstance.delete(`/tasks/${taskId}`);
@@ -149,6 +153,33 @@ const Tasks = () => {
       toast.error('Failed to update task status.');
     }
   };
+
+  const handleDragEnd = useCallback(async (result) => {
+    const { source, destination, draggableId } = result;
+    if (!destination) return;
+    if (source.droppableId === destination.droppableId) return;
+
+    const newStatus = destination.droppableId;
+
+    setTasks((prev) =>
+      prev.map((t) => (t._id === draggableId ? { ...t, status: newStatus } : t))
+    );
+
+    try {
+      const response = await axiosInstance.patch(`/tasks/${draggableId}/status`, {
+        status: newStatus,
+      });
+      setTasks((prev) =>
+        prev.map((t) => (t._id === draggableId ? { ...t, status: response.data.status || newStatus } : t))
+      );
+      toast.success('Task moved to ' + destination.droppableId.replace('-', ' '));
+    } catch (err) {
+      setTasks((prev) =>
+        prev.map((t) => (t._id === draggableId ? { ...t, status: source.droppableId } : t))
+      );
+      toast.error('Failed to update task status.');
+    }
+  }, []);
 
   // Group tasks by column status
   const todoTasks = tasks.filter((t) => t.status === 'todo');
@@ -221,6 +252,7 @@ const Tasks = () => {
           <Loader />
         </div>
       ) : (
+        <DragDropContext onDragEnd={handleDragEnd}>
         <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-4">
           <TaskColumn
             title="To Do"
@@ -259,6 +291,7 @@ const Tasks = () => {
             teamMembers={teamMembers}
           />
         </div>
+        </DragDropContext>
       )}
 
       {/* Add Task Modal */}

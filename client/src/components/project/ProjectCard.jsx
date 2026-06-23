@@ -21,7 +21,7 @@ const ProjectCard = ({ project }) => {
   const progressPercent = Math.min(Math.max(parseInt(progress || 0, 10), 0), 100);
 
   return (
-    <div className="flex flex-col justify-between rounded-2xl border border-gray-150 bg-white p-6 shadow-sm transition-all hover:translate-y-[-2px] hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
+    <div className="flex h-full flex-col justify-between rounded-2xl border border-gray-150 bg-white p-6 shadow-sm transition-all hover:translate-y-[-2px] hover:shadow-md dark:border-gray-800 dark:bg-gray-900">
       <div>
         {/* Header: Status badge */}
         <div className="flex items-center justify-between gap-2">

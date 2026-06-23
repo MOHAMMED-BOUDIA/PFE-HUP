@@ -2,6 +2,14 @@ import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import Loader from '../common/Loader';
 
+const getDefaultRoute = (role) => {
+  switch (role) {
+    case 'admin': return '/admin/dashboard';
+    case 'instructor': return '/dashboard';
+    default: return '/';
+  }
+};
+
 const ProtectedRoute = ({ children, allowedRoles }) => {
   const { user, token, loading } = useAuth();
   const location = useLocation();
@@ -15,13 +23,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   }
 
   if (!token || !user) {
-    // Redirect to login page and save the location they tried to go to
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(user.role)) {
-    // Redirect user to the dashboard if they don't have permission
-    return <Navigate to="/" replace />;
+    return <Navigate to={getDefaultRoute(user.role)} replace />;
   }
 
   return children;

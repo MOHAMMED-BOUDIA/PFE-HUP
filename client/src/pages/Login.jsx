@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, Link } from 'react-router-dom';
 import { FaEnvelope, FaLock, FaProjectDiagram, FaSpinner } from 'react-icons/fa';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,13 +11,22 @@ const Login = () => {
   const location = useLocation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+
+  const getRoleHome = (role) => {
+    switch (role) {
+      case 'admin': return '/admin/dashboard';
+      case 'instructor': return '/dashboard';
+      default: return '/instructors';
+    }
+  };
 
   // Redirect if already logged in
   useEffect(() => {
     if (token && user) {
-      const from = location.state?.from?.pathname || '/';
-      navigate(from, { replace: true });
+      const from = location.state?.from?.pathname;
+      navigate(from || getRoleHome(user.role), { replace: true });
     }
   }, [token, user, navigate, location]);
 
@@ -33,8 +43,8 @@ const Login = () => {
 
     if (result.success) {
       toast.success('Logged in successfully!');
-      const from = location.state?.from?.pathname || '/';
-      navigate(from, { replace: true });
+      const from = location.state?.from?.pathname;
+      navigate(from || getRoleHome(result.user?.role), { replace: true });
     } else {
       toast.error(result.message || 'Login failed. Please check your credentials.');
     }
@@ -89,14 +99,33 @@ const Login = () => {
                 <FaLock className="h-4 w-4" />
               </span>
               <input
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="block w-full rounded-2xl border border-gray-200 bg-gray-50/50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-indigo-500 focus:bg-white dark:border-gray-800 dark:bg-gray-800/40 dark:text-white dark:focus:bg-gray-800"
+                className="block w-full rounded-2xl border border-gray-200 bg-gray-50/50 py-3.5 pl-11 pr-12 text-sm outline-none transition focus:border-indigo-500 focus:bg-white dark:border-gray-800 dark:bg-gray-800/40 dark:text-white dark:focus:bg-gray-800"
                 placeholder="••••••••"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400 hover:text-indigo-500 transition-colors"
+                tabIndex={-1}
+                aria-label={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? <FiEyeOff className="h-5 w-5" /> : <FiEye className="h-5 w-5" />}
+              </button>
             </div>
+          </div>
+
+          {/* Forgot Password Link */}
+          <div className="flex justify-end -mt-4">
+            <Link
+              to="/forgot-password"
+              className="text-sm font-medium text-indigo-600 hover:text-indigo-500 hover:underline dark:text-indigo-400 dark:hover:text-indigo-300 transition-all"
+            >
+              Forgot password?
+            </Link>
           </div>
 
           {/* Submit */}

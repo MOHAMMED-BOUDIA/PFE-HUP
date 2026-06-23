@@ -1,1 +1,13 @@
 @import "tailwindcss";
+@variant dark (&:where(.dark, .dark *));
+
+::-webkit-scrollbar { display: none; }
+html { -ms-overflow-style: none; scrollbar-width: none; }
+
+@keyframes fadeInScale {
+  from { opacity: 0; transform: scale(0.92); }
+  to   { opacity: 1; transform: scale(1); }
+}
+.animate-fadeInScale {
+  animation: fadeInScale 0.2s ease-out;
+}

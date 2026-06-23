@@ -7,9 +7,11 @@ import axiosInstance from '../api/axios';
 import Modal from '../components/common/Modal';
 import Loader from '../components/common/Loader';
 import EmptyState from '../components/common/EmptyState';
+import { useConfirm } from '../context/ModalContext';
 
 const Teams = () => {
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [teams, setTeams] = useState([]);
   const [students, setStudents] = useState([]);
   const [projects, setProjects] = useState([]);
@@ -86,7 +88,8 @@ const Teams = () => {
   };
 
   const handleDeleteTeam = async (teamId) => {
-    if (!window.confirm('Are you sure you want to delete this team?')) return;
+    const ok = await confirm({ title: 'Delete Team', message: 'Are you sure you want to delete this team?', confirmLabel: 'Delete', destructive: true });
+    if (!ok) return;
 
     try {
       await axiosInstance.delete(`/teams/${teamId}`);
@@ -133,7 +136,8 @@ const Teams = () => {
   };
 
   const handleRemoveMember = async (memberId) => {
-    if (!window.confirm('Remove this member from the team?')) return;
+    const ok = await confirm({ title: 'Remove Member', message: 'Remove this member from the team?', confirmLabel: 'Remove', destructive: true });
+    if (!ok) return;
 
     try {
       const response = await axiosInstance.post(`/teams/${currentTeam._id}/remove-member`, {
@@ -186,16 +190,18 @@ const Teams = () => {
             Create groups, link them to projects, and organize student members.
           </p>
         </div>
-        <div>
-          <button
-            onClick={() => setIsCreateOpen(true)}
-            type="button"
-            className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-500 sm:w-auto"
-          >
-            <FaPlus className="h-4 w-4" />
-            Create Team
-          </button>
-        </div>
+        {user?.role !== 'student' && (
+          <div>
+            <button
+              onClick={() => setIsCreateOpen(true)}
+              type="button"
+              className="inline-flex w-full items-center justify-center gap-2 rounded-xl bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-500 sm:w-auto"
+            >
+              <FaPlus className="h-4 w-4" />
+              Create Team
+            </button>
+          </div>
+        )}
       </div>
 
       {/* Teams Grid */}
@@ -265,18 +271,20 @@ const Teams = () => {
 
               {/* Actions */}
               <div className="mt-6 flex items-center justify-between gap-3 border-t border-gray-100 pt-4 dark:border-gray-800">
-                <button
-                  onClick={() => {
-                    setCurrentTeam(team);
-                    setIsManageOpen(true);
-                  }}
-                  type="button"
-                  className="text-xs font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
-                >
-                  Manage Members
-                </button>
+                {user?.role !== 'student' && (
+                  <button
+                    onClick={() => {
+                      setCurrentTeam(team);
+                      setIsManageOpen(true);
+                    }}
+                    type="button"
+                    className="text-xs font-bold text-indigo-600 hover:text-indigo-500 dark:text-indigo-400"
+                  >
+                    Manage Members
+                  </button>
+                )}
                 
-                {(user.role === 'admin' || user.role === 'supervisor') && (
+                {(user.role === 'admin' || user.role === 'instructor') && (
                   <button
                     onClick={() => handleDeleteTeam(team._id)}
                     type="button"

@@ -169,7 +169,7 @@ const ProjectForm = ({
             onChange={handleChange}
             className="mt-1.5 block w-full rounded-xl border border-gray-250 bg-white px-4 py-2.5 text-sm outline-none focus:border-indigo-500 dark:border-gray-750 dark:bg-gray-800 dark:text-white"
           >
-            <option value="">Select Supervisor</option>
+            <option value="">Select Instructor</option>
             {supervisors.map((supervisor) => (
               <option key={supervisor._id || supervisor.id} value={supervisor._id || supervisor.id}>
                 {supervisor.name} ({supervisor.department})

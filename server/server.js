@@ -22,6 +22,9 @@ app.use('/api/tasks', require('./routes/taskRoutes'));
 app.use('/api/documents', require('./routes/documentRoutes'));
 app.use('/api/meetings', require('./routes/meetingRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
+app.use('/api/resources', require('./routes/resourceRoutes'));
+app.use('/api/challenges', require('./routes/challengeRoutes'));
+app.use('/api/groups', require('./routes/groupRoutes'));
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

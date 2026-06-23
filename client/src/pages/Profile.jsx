@@ -15,7 +15,6 @@ import {
   FiChevronRight,
   FiSave,
   FiShield,
-  FiBell,
   FiUser,
 } from 'react-icons/fi';
 import { toast } from 'react-toastify';
@@ -23,7 +22,6 @@ import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../api/axios';
 import Loader from '../components/common/Loader';
 import Tabs from '../components/common/Tabs';
-import ToggleSwitch from '../components/common/ToggleSwitch';
 import PasswordInput from '../components/common/PasswordInput';
 
 // ─── Password strength helper ───────────────────────────────────────────────
@@ -47,7 +45,6 @@ const getPasswordStrength = (pwd) => {
 const tabItems = [
   { key: 'profile', label: 'Profile Settings', icon: FiUser },
   { key: 'security', label: 'Security', icon: FiShield },
-  { key: 'notifications', label: 'Notifications', icon: FiBell },
 ];
 
 const Profile = () => {
@@ -69,16 +66,6 @@ const Profile = () => {
     confirm: '',
   });
   const [securitySubmitting, setSecuritySubmitting] = useState(false);
-
-  // ─── Notifications state ────────────────────────────────────────────────
-  const [notifications, setNotifications] = useState({
-    emailNotifications: true,
-    projectUpdates: true,
-    taskAssignments: true,
-    meetingReminders: false,
-    weeklySummary: false,
-  });
-  const [notifSubmitting, setNotifSubmitting] = useState(false);
 
   // ─── Stats placeholders ─────────────────────────────────────────────────
   const [stats, setStats] = useState({ projects: 0, tasks: 0, teams: 0 });
@@ -142,26 +129,56 @@ const Profile = () => {
     }
   }, [user]);
 
-  // ─── Fetch lightweight stats ────────────────────────────────────────────
+  // ─── Fetch real stats by role ──────────────────────────────────────────
   useEffect(() => {
     const fetchStats = async () => {
+      if (!user || user.role === 'admin') return;
       try {
-        const [projectsRes, tasksRes, teamsRes] = await Promise.all([
-          axiosInstance.get('/projects'),
-          axiosInstance.get('/tasks'),
-          axiosInstance.get('/teams'),
-        ]);
-        setStats({
-          projects: projectsRes.data?.length || 0,
-          tasks: tasksRes.data?.length || 0,
-          teams: teamsRes.data?.length || 0,
-        });
+        let projectsCount = 0, tasksCount = 0, teamsCount = 0;
+        const uid = user.id?.toString();
+
+        if (user.role === 'instructor') {
+          const [projectsRes, tasksRes, groupsRes] = await Promise.all([
+            axiosInstance.get('/projects'),
+            axiosInstance.get('/tasks'),
+            axiosInstance.get('/groups/my'),
+          ]);
+          const myProjectIds = projectsRes.data
+            .filter(p => (p.supervisor?._id || p.supervisor)?.toString() === uid)
+            .map(p => p._id?.toString());
+          projectsCount = myProjectIds.length;
+          tasksCount = tasksRes.data.filter(t =>
+            myProjectIds.includes((t.project?._id || t.project)?.toString())
+          ).length;
+          teamsCount = groupsRes.data?.length || 0;
+        } else if (user.role === 'student') {
+          const [projectsRes, tasksRes, groupsRes, teamsRes] = await Promise.all([
+            axiosInstance.get('/projects'),
+            axiosInstance.get('/tasks'),
+            axiosInstance.get('/groups'),
+            axiosInstance.get('/teams'),
+          ]);
+          tasksCount = tasksRes.data.filter(t =>
+            (t.assignedTo?._id || t.assignedTo)?.toString() === uid
+          ).length;
+          teamsCount = groupsRes.data.filter(g =>
+            g.members?.some(m => (m._id || m)?.toString() === uid)
+          ).length;
+          const userTeamIds = teamsRes.data
+            .filter(t => t.members?.some(m => (m._id || m)?.toString() === uid))
+            .map(t => t._id?.toString());
+          projectsCount = projectsRes.data.filter(p =>
+            userTeamIds.includes((p.team?._id || p.team)?.toString())
+          ).length;
+        }
+
+        setStats({ projects: projectsCount, tasks: tasksCount, teams: teamsCount });
       } catch {
         // silently keep 0 placeholders
       }
     };
     fetchStats();
-  }, []);
+  }, [user]);
 
   // ─── Handlers ───────────────────────────────────────────────────────────
   const handleChange = (e) => {
@@ -170,12 +187,11 @@ const Profile = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    if (
-      !formData.name.trim() ||
-      !formData.email.trim() ||
-      !formData.department.trim() ||
-      !formData.phone.trim()
-    ) {
+    if (!formData.name.trim() || !formData.email.trim()) {
+      toast.error('All profile fields are required.');
+      return;
+    }
+    if (user.role !== 'admin' && (!formData.department.trim() || !formData.phone.trim())) {
       toast.error('All profile fields are required.');
       return;
     }
@@ -220,17 +236,6 @@ const Profile = () => {
     setSecuritySubmitting(false);
     setPasswords({ current: '', newPassword: '', confirm: '' });
     toast.success('Password updated successfully!');
-  };
-
-  const handleNotifToggle = (key) => {
-    setNotifications((prev) => ({ ...prev, [key]: !prev[key] }));
-  };
-
-  const handleNotifSave = async () => {
-    setNotifSubmitting(true);
-    await new Promise((r) => setTimeout(r, 800));
-    setNotifSubmitting(false);
-    toast.success('Notification preferences saved!');
   };
 
   // ─── Loading guard ──────────────────────────────────────────────────────
@@ -297,15 +302,15 @@ const Profile = () => {
         <div className="self-start rounded-2xl border border-gray-150 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900 space-y-5 text-center">
           {/* Avatar */}
           <div className="flex flex-col items-center gap-3">
-            <div className="relative">
+            <div className="w-32 h-32 rounded-full overflow-hidden ring-2 ring-indigo-400">
               {user.avatar ? (
                 <img
                   src={getAvatarUrl(user.avatar)}
                   alt={user.name}
-                  className="h-24 w-24 rounded-full object-cover shadow-lg shadow-indigo-600/20"
+                  className="w-full h-full object-cover object-top"
                 />
               ) : (
-                <div className="flex h-24 w-24 items-center justify-center rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-bold text-white shadow-lg shadow-indigo-600/20">
+                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-indigo-500 to-purple-600 text-3xl font-bold text-white">
                   {initials}
                 </div>
               )}
@@ -342,23 +347,25 @@ const Profile = () => {
             </p>
           </div>
 
-          {/* Mini Stats Row */}
-          <div className="grid grid-cols-3 gap-2">
-            {miniStats.map((s) => (
-              <div
-                key={s.label}
-                className="flex flex-col items-center gap-1 rounded-xl bg-gray-50 py-3 dark:bg-gray-800/60"
-              >
-                <s.icon className={`h-4 w-4 ${s.color}`} />
-                <span className="text-base font-bold text-gray-900 dark:text-white">
-                  {s.value}
-                </span>
-                <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
-                  {s.label}
-                </span>
-              </div>
-            ))}
-          </div>
+          {/* Mini Stats Row — hidden for admin */}
+          {user.role !== 'admin' && (
+            <div className="grid grid-cols-3 gap-2">
+              {miniStats.map((s) => (
+                <div
+                  key={s.label}
+                  className="flex flex-col items-center gap-1 rounded-xl bg-gray-50 py-3 dark:bg-gray-800/60"
+                >
+                  <s.icon className={`h-4 w-4 ${s.color}`} />
+                  <span className="text-base font-bold text-gray-900 dark:text-white">
+                    {s.value}
+                  </span>
+                  <span className="text-[10px] font-medium text-gray-500 dark:text-gray-400">
+                    {s.label}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
 
           {/* Role & Department */}
           <div className="space-y-2 border-t border-gray-100 pt-4 dark:border-gray-800">
@@ -368,12 +375,14 @@ const Profile = () => {
                 {user.role}
               </span>
             </div>
-            <div className="flex items-center justify-between text-xs font-semibold text-gray-500 dark:text-gray-400">
-              <span>Department</span>
-              <span className="max-w-[140px] truncate text-gray-800 dark:text-gray-200" title={user.department || 'N/A'}>
-                {user.department || 'N/A'}
-              </span>
-            </div>
+            {user.role !== 'admin' && (
+              <div className="flex items-center justify-between text-xs font-semibold text-gray-500 dark:text-gray-400">
+                <span>Department</span>
+                <span className="max-w-[140px] truncate text-gray-800 dark:text-gray-200" title={user.department || 'N/A'}>
+                  {user.department || 'N/A'}
+                </span>
+              </div>
+            )}
           </div>
         </div>
 
@@ -435,47 +444,61 @@ const Profile = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                  {/* Department */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                      Department *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-                        <FaBuilding className="h-3.5 w-3.5" />
-                      </span>
-                      <input
-                        type="text"
-                        name="department"
-                        required
-                        value={formData.department}
-                        onChange={handleChange}
-                        className={inputClass}
-                      />
+                {user.role !== 'admin' && (
+                  <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                    {/* Department */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        Department {user.role === 'instructor' ? '' : '*'}
+                      </label>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                          <FaBuilding className="h-3.5 w-3.5" />
+                        </span>
+                        <select
+                          name="department"
+                          required={user.role !== 'instructor'}
+                          disabled={user.role === 'instructor'}
+                          value={formData.department}
+                          onChange={handleChange}
+                          className={`block w-full rounded-lg border border-gray-200 bg-gray-50/50 py-3 pl-11 pr-4 text-xs outline-none transition-all duration-200 focus:border-indigo-500 focus:bg-white focus:ring-2 focus:ring-indigo-500/40 dark:border-gray-700 dark:bg-gray-800 dark:text-white dark:focus:bg-gray-800 ${user.role === 'instructor' ? 'cursor-not-allowed opacity-60' : ''}`}
+                        >
+                          <option value="">Select department</option>
+                          <option value="IT">IT</option>
+                          <option value="Web Development">Web Development</option>
+                          <option value="Mobile Development">Mobile Development</option>
+                          <option value="Data Science">Data Science</option>
+                          <option value="Cybersecurity">Cybersecurity</option>
+                          <option value="Network & Systems">Network & Systems</option>
+                          <option value="Software Engineering">Software Engineering</option>
+                        </select>
+                      </div>
+                      {user.role === 'instructor' && (
+                        <p className="mt-1 text-[10px] text-gray-400 italic">Only admin can change your department</p>
+                      )}
                     </div>
-                  </div>
 
-                  {/* Phone */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                      Phone Number *
-                    </label>
-                    <div className="relative">
-                      <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-                        <FaPhone className="h-3.5 w-3.5" />
-                      </span>
-                      <input
-                        type="text"
-                        name="phone"
-                        required
-                        value={formData.phone}
-                        onChange={handleChange}
-                        className={inputClass}
-                      />
+                    {/* Phone */}
+                    <div className="space-y-1.5">
+                      <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                        Phone Number *
+                      </label>
+                      <div className="relative">
+                        <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                          <FaPhone className="h-3.5 w-3.5" />
+                        </span>
+                        <input
+                          type="text"
+                          name="phone"
+                          required
+                          value={formData.phone}
+                          onChange={handleChange}
+                          className={inputClass}
+                        />
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
 
                 <div className="flex items-center justify-end border-t border-gray-100 pt-5 dark:border-gray-800">
                   <button
@@ -569,69 +592,6 @@ const Profile = () => {
                   </button>
                 </div>
               </form>
-            )}
-
-            {/* ── Tab 3: Notifications ────────────────────────────────── */}
-            {activeTab === 'notifications' && (
-              <div className="space-y-4">
-                <div>
-                  <h4 className="text-sm font-bold text-gray-800 dark:text-gray-200">
-                    Notification Preferences
-                  </h4>
-                  <p className="mt-0.5 text-xs text-gray-500 dark:text-gray-400">
-                    Choose which notifications you'd like to receive.
-                  </p>
-                </div>
-
-                <div className="divide-y divide-gray-100 dark:divide-gray-800 rounded-xl border border-gray-100 dark:border-gray-800 px-4">
-                  <ToggleSwitch
-                    checked={notifications.emailNotifications}
-                    onChange={() => handleNotifToggle('emailNotifications')}
-                    label="Email Notifications"
-                    description="Receive important updates via email"
-                  />
-                  <ToggleSwitch
-                    checked={notifications.projectUpdates}
-                    onChange={() => handleNotifToggle('projectUpdates')}
-                    label="Project Updates"
-                    description="Get notified about project status changes"
-                  />
-                  <ToggleSwitch
-                    checked={notifications.taskAssignments}
-                    onChange={() => handleNotifToggle('taskAssignments')}
-                    label="Task Assignments"
-                    description="Alerts when tasks are assigned to you"
-                  />
-                  <ToggleSwitch
-                    checked={notifications.meetingReminders}
-                    onChange={() => handleNotifToggle('meetingReminders')}
-                    label="Meeting Reminders"
-                    description="Reminders before scheduled meetings"
-                  />
-                  <ToggleSwitch
-                    checked={notifications.weeklySummary}
-                    onChange={() => handleNotifToggle('weeklySummary')}
-                    label="Weekly Summary"
-                    description="Weekly digest of your activity"
-                  />
-                </div>
-
-                <div className="flex items-center justify-end border-t border-gray-100 pt-5 dark:border-gray-800">
-                  <button
-                    type="button"
-                    onClick={handleNotifSave}
-                    disabled={notifSubmitting}
-                    className="inline-flex items-center gap-2 rounded-lg bg-indigo-500 px-5 py-3 text-xs font-semibold text-white shadow-md shadow-indigo-500/20 transition-all duration-200 hover:bg-indigo-600 hover:scale-[1.02] disabled:opacity-60 disabled:pointer-events-none"
-                  >
-                    {notifSubmitting ? (
-                      <FaSpinner className="h-3.5 w-3.5 animate-spin" />
-                    ) : (
-                      <FiSave className="h-3.5 w-3.5" />
-                    )}
-                    Save Preferences
-                  </button>
-                </div>
-              </div>
             )}
           </div>
         </div>

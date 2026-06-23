@@ -18,8 +18,10 @@ import axiosInstance from '../api/axios';
 import StatusBadge from '../components/common/StatusBadge';
 import Loader from '../components/common/Loader';
 import { formatDate } from '../utils/helpers';
+import { useConfirm } from '../context/ModalContext';
 
 const ProjectDetails = () => {
+  const confirm = useConfirm();
   const { id } = useParams();
   const { user } = useAuth();
   const navigate = useNavigate();
@@ -97,7 +99,8 @@ const ProjectDetails = () => {
 
   // Delete document
   const handleDeleteDoc = async (docId) => {
-    if (!window.confirm('Delete this document?')) return;
+    const ok = await confirm({ title: 'Delete Document', message: 'Delete this document?', confirmLabel: 'Delete', destructive: true });
+    if (!ok) return;
     try {
       await axiosInstance.delete(`/documents/${docId}`);
       setDocuments(prev => prev.filter(d => d._id !== docId));
@@ -110,7 +113,8 @@ const ProjectDetails = () => {
 
   // Delete meeting
   const handleDeleteMeeting = async (meetId) => {
-    if (!window.confirm('Delete this meeting?')) return;
+    const ok = await confirm({ title: 'Delete Meeting', message: 'Delete this meeting?', confirmLabel: 'Delete', destructive: true });
+    if (!ok) return;
     try {
       await axiosInstance.delete(`/meetings/${meetId}`);
       setMeetings(prev => prev.filter(m => m._id !== meetId));
@@ -138,7 +142,7 @@ const ProjectDetails = () => {
     { todo: 0, 'in-progress': 0, review: 0, done: 0 }
   );
 
-  const isSupervisorOrAdmin = user.role === 'admin' || user.role === 'supervisor';
+  const isSupervisorOrAdmin = user.role === 'admin' || user.role === 'instructor';
 
   return (
     <div className="space-y-6">

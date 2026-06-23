@@ -16,7 +16,7 @@ const userSchema = new mongoose.Schema({
   },
   role: {
     type: String,
-    enum: ['student', 'supervisor', 'admin'],
+    enum: ['student', 'instructor', 'admin'],
     default: 'student'
   },
   avatar: {
@@ -30,6 +30,22 @@ const userSchema = new mongoose.Schema({
   phone: {
     type: String,
     default: ''
+  },
+  isVerified: {
+    type: Boolean,
+    default: false
+  },
+  verificationToken: {
+    type: String,
+    default: null
+  },
+  resetPasswordToken: {
+    type: String,
+    default: null
+  },
+  resetPasswordExpires: {
+    type: Date,
+    default: null
   }
 }, { timestamps: true });
 

@@ -2,7 +2,7 @@ const router = require('express').Router();
 const multer = require('multer');
 const path = require('path');
 const fs = require('fs');
-const { getAllUsers, getUserById, updateUser, updateAvatar, deleteUser, getSupervisors, getStudents } = require('../controllers/userController');
+const { getAllUsers, getUserById, updateUser, updateAvatar, deleteUser, getInstructors, getStudents, createUser } = require('../controllers/userController');
 const { auth, authorize } = require('../middleware/auth');
 
 const avatarDir = path.join(__dirname, '..', 'uploads', 'avatars');
@@ -27,7 +27,8 @@ const upload = multer({
 });
 
 router.get('/', auth, getAllUsers);
-router.get('/supervisors', auth, getSupervisors);
+router.post('/', auth, authorize('admin'), createUser);
+router.get('/instructors', auth, getInstructors);
 router.get('/students', auth, getStudents);
 router.get('/:id', auth, getUserById);
 router.put('/:id/avatar', auth, upload.single('avatar'), updateAvatar);

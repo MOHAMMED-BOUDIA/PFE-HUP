@@ -8,9 +8,11 @@ import ProjectForm from '../components/project/ProjectForm';
 import Modal from '../components/common/Modal';
 import Loader from '../components/common/Loader';
 import EmptyState from '../components/common/EmptyState';
+import { useConfirm } from '../context/ModalContext';
 
 const Projects = () => {
   const { user } = useAuth();
+  const confirm = useConfirm();
   const [projects, setProjects] = useState([]);
   const [supervisors, setSupervisors] = useState([]);
   const [teams, setTeams] = useState([]);
@@ -38,7 +40,7 @@ const Projects = () => {
 
   const fetchFormMetadata = async () => {
     try {
-      const supervisorsRes = await axiosInstance.get('/users/supervisors');
+      const supervisorsRes = await axiosInstance.get('/users/instructors');
       setSupervisors(supervisorsRes.data || []);
       const teamsRes = await axiosInstance.get('/teams');
       setTeams(teamsRes.data || []);
@@ -94,9 +96,13 @@ const Projects = () => {
   };
 
   const handleDeleteClick = async (projectId) => {
-    if (!window.confirm('Are you sure you want to delete this project? This will delete associated tasks, meetings, and documents.')) {
-      return;
-    }
+    const ok = await confirm({
+      title: 'Delete Project',
+      message: 'Are you sure you want to delete this project? This will delete associated tasks, meetings, and documents.',
+      confirmLabel: 'Delete',
+      destructive: true,
+    });
+    if (!ok) return;
 
     try {
       await axiosInstance.delete(`/projects/${projectId}`);
@@ -210,12 +216,12 @@ const Projects = () => {
       ) : (
         <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
           {filteredProjects.map((project) => (
-            <div key={project._id} className="relative group">
+            <div key={project._id} className="relative group h-full">
               <ProjectCard project={project} />
               
               {/* Overlay controls for Edit/Delete (visible on hover) */}
               <div className="absolute top-4 right-4 flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity duration-200">
-                {(user.role === 'admin' || user.role === 'supervisor' || project.supervisor?._id === user.id) && (
+                {(user.role === 'admin' || user.role === 'instructor' || project.supervisor?._id === user.id) && (
                   <>
                     <button
                       onClick={() => handleEditClick(project)}

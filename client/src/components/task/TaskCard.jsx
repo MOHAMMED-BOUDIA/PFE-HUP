@@ -1,7 +1,8 @@
+import { Draggable } from '@hello-pangea/dnd';
 import { FaCalendarAlt, FaUser, FaEdit, FaTrash } from 'react-icons/fa';
 import { formatDate } from '../../utils/helpers';
 
-const TaskCard = ({ task, onEdit, onDelete, onStatusChange, teamMembers = [] }) => {
+const TaskCard = ({ task, index, onEdit, onDelete, onStatusChange, teamMembers = [] }) => {
   const { _id, title, description, status, priority = 'medium', dueDate, assignedTo } = task;
 
   const priorityColors = {
@@ -18,7 +19,19 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange, teamMembers = [] }) 
   ];
 
   return (
-    <div className="flex flex-col justify-between rounded-xl border border-gray-150 bg-white p-4 shadow-sm hover:shadow-md dark:border-gray-800 dark:bg-gray-900 transition-all">
+    <Draggable draggableId={_id} index={index}>
+      {(provided, snapshot) => (
+        <div
+          ref={provided.innerRef}
+          {...provided.draggableProps}
+          {...provided.dragHandleProps}
+          className={`flex flex-col justify-between rounded-xl border bg-white p-4 shadow-sm transition-all dark:bg-gray-900 ${
+            snapshot.isDragging
+              ? 'border-indigo-500 shadow-lg shadow-indigo-500/20 rotate-2'
+              : 'border-gray-150 shadow-sm hover:shadow-md dark:border-gray-800'
+          }`}
+          style={provided.draggableProps.style}
+        >
       <div>
         {/* Header: Priority */}
         <div className="flex items-center justify-between">
@@ -88,7 +101,9 @@ const TaskCard = ({ task, onEdit, onDelete, onStatusChange, teamMembers = [] }) 
           </select>
         </div>
       </div>
-    </div>
+        </div>
+      )}
+    </Draggable>
   );
 };
 

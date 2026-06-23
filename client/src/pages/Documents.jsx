@@ -5,8 +5,10 @@ import axiosInstance from '../api/axios';
 import Modal from '../components/common/Modal';
 import Loader from '../components/common/Loader';
 import EmptyState from '../components/common/EmptyState';
+import { useConfirm } from '../context/ModalContext';
 
 const Documents = () => {
+  const confirm = useConfirm();
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState('');
   const [documents, setDocuments] = useState([]);
@@ -115,7 +117,8 @@ const Documents = () => {
   };
 
   const handleDeleteDoc = async (docId) => {
-    if (!window.confirm('Are you sure you want to delete this document?')) return;
+    const ok = await confirm({ title: 'Delete Document', message: 'Are you sure you want to delete this document?', confirmLabel: 'Delete', destructive: true });
+    if (!ok) return;
 
     try {
       await axiosInstance.delete(`/documents/${docId}`);

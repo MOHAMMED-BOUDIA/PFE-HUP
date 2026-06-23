@@ -50,8 +50,9 @@ export const AuthProvider = ({ children }) => {
       
       localStorage.setItem('token', receivedToken);
       setToken(receivedToken);
-      setUser(normalizeUser(userData));
-      return { success: true };
+      const normalized = normalizeUser(userData);
+      setUser(normalized);
+      return { success: true, user: normalized };
     } catch (error) {
       console.error('Login error:', error);
       const message = error.response?.data?.message || 'Login failed. Please check your credentials.';
