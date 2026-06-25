@@ -1,14 +1,12 @@
 import { useState, useEffect } from 'react';
 import { FaPlus, FaEdit, FaTrash, FaUsers, FaSave, FaTimes, FaUserCheck, FaCamera, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
-import { useAuth } from '../context/AuthContext';
 import { useConfirm } from '../context/ModalContext';
 import axiosInstance from '../api/axios';
 import Loader from '../components/common/Loader';
 import EmptyState from '../components/common/EmptyState';
 
 const MyGroups = () => {
-  const { user } = useAuth();
   const confirm = useConfirm();
   const [groups, setGroups] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,20 +19,21 @@ const MyGroups = () => {
   const [imagePreview, setImagePreview] = useState(null);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => {
-    fetchGroups();
-  }, []);
-
   const fetchGroups = async () => {
     try {
       const res = await axiosInstance.get('/groups/my');
       setGroups(res.data || []);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load groups');
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
+    fetchGroups();
+  }, []);
 
   const openCreate = () => {
     setEditing(null);
@@ -110,7 +109,7 @@ const MyGroups = () => {
       await axiosInstance.delete(`/groups/${group._id}`);
       setGroups(prev => prev.filter(g => g._id !== group._id));
       toast.success('Group deleted');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete group');
     }
   };

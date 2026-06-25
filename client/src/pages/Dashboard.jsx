@@ -10,7 +10,7 @@ import axiosInstance from '../api/axios';
 import StatsCard from '../components/common/StatsCard';
 import ProjectCard from '../components/project/ProjectCard';
 import Loader from '../components/common/Loader';
-import EmptyState from '../components/common/EmptyState';
+
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -40,7 +40,7 @@ const Dashboard = () => {
       }
     });
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, location.pathname, navigate]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,8 +56,8 @@ const Dashboard = () => {
         let totalTasks = 0;
         let totalMeetings = 0;
         await Promise.all(projects.map(async (p) => {
-          try { const r = await axiosInstance.get(`/tasks/project/${p._id}`); totalTasks += (r.data || []).length; } catch {}
-          try { const r = await axiosInstance.get(`/meetings/project/${p._id}`); totalMeetings += (r.data || []).length; } catch {}
+          try { const r = await axiosInstance.get(`/tasks/project/${p._id}`); totalTasks += (r.data || []).length; } catch { /* ignore */ }
+          try { const r = await axiosInstance.get(`/meetings/project/${p._id}`); totalMeetings += (r.data || []).length; } catch { /* ignore */ }
         }));
 
         setStats({ projectsCount: projects.length, teamsCount: teams.length, tasksCount: totalTasks, meetingsCount: totalMeetings });
@@ -75,19 +75,19 @@ const Dashboard = () => {
             const groupsRes = await axiosInstance.get('/groups');
             const allGroups = groupsRes.data || [];
             setJoinedGroups(allGroups.filter(g => g.members?.some(m => (m._id || m) === user.id)));
-          } catch {}
+          } catch { /* ignore */ }
         }
         if (user?.role === 'instructor') {
           try {
             const groupsRes = await axiosInstance.get('/groups/my');
             setMyGroups(groupsRes.data || []);
-          } catch {}
+          } catch { /* ignore */ }
           try {
             const pendingRes = await axiosInstance.get('/groups/pending-requests');
             setPendingRequests(pendingRes.data.requests || []);
-          } catch {}
+          } catch { /* ignore */ }
         }
-      } catch (error) {
+      } catch {
         toast.error('Failed to load dashboard data.');
       } finally {
         setLoading(false);

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useNavigate } from 'react-router-dom';
-import { FaChalkboardTeacher, FaUsers, FaArrowRight, FaBookOpen } from 'react-icons/fa';
+import { Link } from 'react-router-dom';
+import { FaUsers, FaArrowRight, FaBookOpen } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../api/axios';
@@ -9,11 +9,9 @@ import EmptyState from '../components/common/EmptyState';
 
 const Instructors = () => {
   const { user } = useAuth();
-  const navigate = useNavigate();
   const [instructors, setInstructors] = useState([]);
   const [groupsMap, setGroupsMap] = useState({});
   const [loading, setLoading] = useState(true);
-  const [isApproved, setIsApproved] = useState(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -21,7 +19,6 @@ const Instructors = () => {
         if (user?.role === 'student') {
           const membershipRes = await axiosInstance.get('/groups/my-membership');
           const approved = membershipRes.data.status === 'approved';
-          setIsApproved(approved);
 
           if (approved) {
             const instructorRes = await axiosInstance.get('/users/my-instructor');

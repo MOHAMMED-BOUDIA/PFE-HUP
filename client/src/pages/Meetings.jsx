@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaCalendarAlt, FaFolderOpen, FaPlus, FaTrash, FaClock, FaMapMarkerAlt, FaNotesMedical } from 'react-icons/fa';
+import { FaCalendarAlt, FaFolderOpen, FaPlus, FaTrash, FaClock, FaMapMarkerAlt } from 'react-icons/fa';
 import { FiEdit } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
@@ -55,6 +55,7 @@ const Meetings = () => {
   // Fetch meetings when selected project changes
   useEffect(() => {
     if (!selectedProjectId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMeetings([]);
       return;
     }

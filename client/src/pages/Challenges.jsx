@@ -45,7 +45,7 @@ const Challenges = () => {
     try {
       const res = await axiosInstance.get('/challenges');
       setChallenges(res.data || []);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load challenges.');
     }
   };
@@ -96,7 +96,7 @@ const Challenges = () => {
       setChallenges((prev) =>
         prev.map((c) => (c._id === id ? res.data : c))
       );
-    } catch (err) {
+    } catch {
       toast.error('Failed to vote.');
     }
   };
@@ -165,7 +165,7 @@ const Challenges = () => {
       await axiosInstance.delete(`/challenges/${id}`);
       setChallenges((prev) => prev.filter((c) => c._id !== id));
       toast.success('Challenge deleted.');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete challenge.');
     } finally {
       setDeleting(null);

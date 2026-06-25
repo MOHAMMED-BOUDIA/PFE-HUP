@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaUsers, FaProjectDiagram, FaTrash, FaCheck, FaTimes, FaExchangeAlt } from 'react-icons/fa';
+import { FaUsers, FaProjectDiagram, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../api/axios';
@@ -15,16 +15,6 @@ const AdminPanel = () => {
   const [projectsList, setProjectsList] = useState([]);
   const [loading, setLoading] = useState(true);
   const [statusUpdating, setStatusUpdating] = useState(false);
-
-  // Guard: if user role is not admin, show unauthorized (though protected route covers it)
-  if (user?.role !== 'admin') {
-    return (
-      <div className="flex h-[50vh] flex-col items-center justify-center space-y-3">
-        <h2 className="text-xl font-bold text-red-600">Access Denied</h2>
-        <p className="text-sm text-gray-500">Only system administrators can access this page.</p>
-      </div>
-    );
-  }
 
   const loadData = async () => {
     try {
@@ -110,6 +100,15 @@ const AdminPanel = () => {
         return 'bg-emerald-50 text-emerald-700 border-emerald-100 dark:bg-emerald-950/20 dark:text-emerald-400 dark:border-emerald-900/40';
     }
   };
+
+  if (user?.role !== 'admin') {
+    return (
+      <div className="flex h-[50vh] flex-col items-center justify-center space-y-3">
+        <h2 className="text-xl font-bold text-red-600">Access Denied</h2>
+        <p className="text-sm text-gray-500">Only system administrators can access this page.</p>
+      </div>
+    );
+  }
 
   if (loading) {
     return (

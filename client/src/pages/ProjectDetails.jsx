@@ -62,10 +62,11 @@ const ProjectDetails = () => {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setLoading(true);
     fetchProjectData();
     setLoading(false);
-  }, [id]);
+  }, [id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleUpdateStatus = async (newStatus) => {
     setUpdating(true);

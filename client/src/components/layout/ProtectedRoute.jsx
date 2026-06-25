@@ -20,12 +20,11 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [membershipStatus, setMembershipStatus] = useState(null);
-  const [checkingMembership, setCheckingMembership] = useState(false);
+  const [checkingMembership, setCheckingMembership] = useState(true);
   const hasRedirected = useRef(false);
 
   useEffect(() => {
     if (user?.role === 'student') {
-      setCheckingMembership(true);
       axiosInstance.get('/groups/my-membership').then(res => {
         setMembershipStatus(res.data.status);
       }).catch(() => {
@@ -34,8 +33,6 @@ const ProtectedRoute = ({ children, allowedRoles }) => {
         setCheckingMembership(false);
         hasRedirected.current = false;
       });
-    } else {
-      setMembershipStatus(null);
     }
   }, [user]);
 

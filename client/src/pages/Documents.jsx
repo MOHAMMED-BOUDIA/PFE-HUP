@@ -50,6 +50,7 @@ const Documents = () => {
   // Fetch documents when selected project changes
   useEffect(() => {
     if (!selectedProjectId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDocuments([]);
       return;
     }

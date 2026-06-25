@@ -4,8 +4,7 @@ import { FaProjectDiagram, FaSpinner, FaLock } from 'react-icons/fa';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
 import { toast } from 'react-toastify';
 import axiosInstance from '../api/axios';
-import PasswordInput from '../components/common/PasswordInput';
-
+ 
 const getPasswordStrength = (pwd) => {
   if (!pwd) return { label: '', color: '', width: '0%' };
   let score = 0;

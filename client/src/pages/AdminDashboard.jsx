@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaUsers, FaChalkboardTeacher, FaGraduationCap, FaProjectDiagram, FaLayerGroup } from 'react-icons/fa';
+import { FaUsers, FaChalkboardTeacher, FaGraduationCap, FaLayerGroup } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import {
   ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line, CartesianGrid

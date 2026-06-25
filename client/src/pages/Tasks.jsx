@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { FaPlus, FaFilter, FaTasks, FaFolderOpen } from 'react-icons/fa';
+import { FaPlus, FaTasks, FaFolderOpen } from 'react-icons/fa';
 import { DragDropContext } from '@hello-pangea/dnd';
 import { toast } from 'react-toastify';
 import axiosInstance from '../api/axios';
@@ -14,7 +14,6 @@ const Tasks = () => {
   const confirm = useConfirm();
   const [projects, setProjects] = useState([]);
   const [selectedProjectId, setSelectedProjectId] = useState('');
-  const [selectedProject, setSelectedProject] = useState(null);
   
   const [tasks, setTasks] = useState([]);
   const [teamMembers, setTeamMembers] = useState([]);
@@ -52,9 +51,9 @@ const Tasks = () => {
   // Fetch tasks and team members when selected project changes
   useEffect(() => {
     if (!selectedProjectId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setTasks([]);
       setTeamMembers([]);
-      setSelectedProject(null);
       return;
     }
 
@@ -63,7 +62,6 @@ const Tasks = () => {
       try {
         // Fetch project details to get team members
         const projRes = await axiosInstance.get(`/projects/${selectedProjectId}`);
-        setSelectedProject(projRes.data);
         
         if (projRes.data.team?.members) {
           setTeamMembers(projRes.data.team.members);
@@ -133,8 +131,7 @@ const Tasks = () => {
       await axiosInstance.delete(`/tasks/${taskId}`);
       setTasks((prev) => prev.filter((t) => t._id !== taskId));
       toast.success('Task deleted successfully!');
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error('Failed to delete task.');
     }
   };
@@ -173,7 +170,7 @@ const Tasks = () => {
         prev.map((t) => (t._id === draggableId ? { ...t, status: response.data.status || newStatus } : t))
       );
       toast.success('Task moved to ' + destination.droppableId.replace('-', ' '));
-    } catch (err) {
+    } catch {
       setTasks((prev) =>
         prev.map((t) => (t._id === draggableId ? { ...t, status: source.droppableId } : t))
       );

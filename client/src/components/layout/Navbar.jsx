@@ -5,7 +5,7 @@ import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
 import axiosInstance from '../../api/axios';
 
-const Navbar = ({ onMenuToggle, onToggleCollapse }) => {
+const Navbar = ({ onMenuToggle }) => {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -38,10 +38,7 @@ const Navbar = ({ onMenuToggle, onToggleCollapse }) => {
   }, [darkMode]);
 
   useEffect(() => {
-    if (user?.role !== 'instructor') {
-      setPendingRequests([]);
-      return;
-    }
+    if (user?.role !== 'instructor') return;
     const fetchPending = async () => {
       try {
         const res = await axiosInstance.get('/groups/pending-requests');
@@ -67,6 +64,7 @@ const Navbar = ({ onMenuToggle, onToggleCollapse }) => {
 
   // Close dropdown on route change
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShowDropdown(false);
   }, [location.pathname]);
 

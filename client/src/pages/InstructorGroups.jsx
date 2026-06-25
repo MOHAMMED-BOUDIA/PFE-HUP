@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { FaUsers, FaUserPlus, FaCheck, FaArrowLeft, FaHourglassHalf, FaBan, FaUsersSlash } from 'react-icons/fa';
+import { FaUsers, FaUserPlus, FaCheck, FaArrowLeft, FaHourglassHalf, FaBan } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import axiosInstance from '../api/axios';
@@ -94,7 +94,6 @@ const InstructorGroups = () => {
             const pending = isPending(group);
             const memberCount = group.members?.length || 0;
             const isFull = memberCount >= group.maxMembers;
-            const uid = user.id;
 
             let btnContent;
             if (joined) {

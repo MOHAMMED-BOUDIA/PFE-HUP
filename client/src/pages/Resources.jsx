@@ -25,7 +25,7 @@ const Resources = () => {
     try {
       const res = await axiosInstance.get('/resources');
       setResources(res.data || []);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load resources.');
     }
   };
@@ -94,7 +94,7 @@ const Resources = () => {
       await axiosInstance.delete(`/resources/${id}`);
       setResources((prev) => prev.filter((r) => r._id !== id));
       toast.success('Resource deleted.');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete resource.');
     } finally {
       setDeleting(null);

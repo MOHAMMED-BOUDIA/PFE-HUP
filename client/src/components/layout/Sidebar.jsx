@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { NavLink, useLocation } from 'react-router-dom';
+import { NavLink } from 'react-router-dom';
 import { 
   FaTachometerAlt, 
   FaProjectDiagram, 
@@ -22,16 +22,11 @@ import axiosInstance from '../../api/axios';
 
 const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
   const { user, logout } = useAuth();
-  const location = useLocation();
   const [isApproved, setIsApproved] = useState(false);
   const [assignedInstructorId, setAssignedInstructorId] = useState(null);
 
   useEffect(() => {
-    if (user?.role !== 'student') {
-      setIsApproved(false);
-      setAssignedInstructorId(null);
-      return;
-    }
+    if (user?.role !== 'student') return;
     axiosInstance.get('/groups/my-membership').then(res => {
       const approved = res.data.status === 'approved';
       setIsApproved(approved);

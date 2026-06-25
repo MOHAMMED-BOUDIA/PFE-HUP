@@ -14,19 +14,19 @@ const AdminInstructors = () => {
   const [formData, setFormData] = useState({ name: '', email: '', password: '', department: '', phone: '' });
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { fetchInstructors(); }, []);
-
   const fetchInstructors = async () => {
     try {
       const res = await axiosInstance.get('/users/instructors');
       setInstructors(res.data || []);
-    } catch (err) {
+    } catch {
       toast.error('Failed to load instructors');
     } finally {
       setLoading(false);
     }
   };
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
+  useEffect(() => { fetchInstructors(); }, []);
   const openCreate = () => {
     setEditing(null);
     setFormData({ name: '', email: '', password: '', department: '', phone: '' });
@@ -63,8 +63,8 @@ const AdminInstructors = () => {
       }
       setShowForm(false);
       setEditing(null);
-    } catch (err) {
-      toast.error(err.response?.data?.message || 'Failed to save');
+    } catch {
+      toast.error('Failed to save');
     } finally {
       setSaving(false);
     }
@@ -76,7 +76,7 @@ const AdminInstructors = () => {
       await axiosInstance.delete(`/users/${inst._id}`);
       setInstructors(prev => prev.filter(i => i._id !== inst._id));
       toast.success('Instructor deleted');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete');
     }
   };
@@ -87,7 +87,7 @@ const AdminInstructors = () => {
       const res = await axiosInstance.put(`/users/${inst._id}`, { isVerified: !inst.isVerified });
       setInstructors(prev => prev.map(i => i._id === inst._id ? { ...i, isVerified: res.data.isVerified } : i));
       toast.success(res.data.isVerified ? 'Instructor activated' : 'Instructor deactivated');
-    } catch (err) {
+    } catch {
       toast.error('Failed to toggle status');
     }
   };

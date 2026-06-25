@@ -2,7 +2,7 @@ import { Draggable } from '@hello-pangea/dnd';
 import { FaCalendarAlt, FaUser, FaEdit, FaTrash } from 'react-icons/fa';
 import { formatDate } from '../../utils/helpers';
 
-const TaskCard = ({ task, index, onEdit, onDelete, onStatusChange, teamMembers = [] }) => {
+const TaskCard = ({ task, index, onEdit, onDelete, onStatusChange }) => {
   const { _id, title, description, status, priority = 'medium', dueDate, assignedTo } = task;
 
   const priorityColors = {

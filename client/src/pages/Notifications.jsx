@@ -157,7 +157,7 @@ const Notifications = () => {
                     {notif.message}
                   </p>
                   <p className="text-[10px] text-gray-400">
-                    {new Date(notif.createdAt || Date.now()).toLocaleString()}
+                    {new Date(notif.createdAt || new Date()).toLocaleString()}
                   </p>
                 </div>
 

@@ -28,7 +28,7 @@ const Login = () => {
       const from = location.state?.from?.pathname;
       navigate(from || getRoleHome(user.role), { replace: true });
     }
-  }, [token, user]);
+  }, [token, user, location.state?.from?.pathname, navigate]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

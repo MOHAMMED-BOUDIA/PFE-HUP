@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { FaTrash, FaToggleOn, FaToggleOff, FaGraduationCap } from 'react-icons/fa';
+import { FaTrash, FaToggleOn, FaToggleOff } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useConfirm } from '../context/ModalContext';
 import axiosInstance from '../api/axios';
@@ -15,7 +15,7 @@ const AdminStudents = () => {
       try {
         const res = await axiosInstance.get('/users/students');
         setStudents(res.data || []);
-      } catch (err) {
+      } catch {
         toast.error('Failed to load students');
       } finally {
         setLoading(false);
@@ -30,7 +30,7 @@ const AdminStudents = () => {
       await axiosInstance.delete(`/users/${student._id}`);
       setStudents(prev => prev.filter(s => s._id !== student._id));
       toast.success('Student deleted');
-    } catch (err) {
+    } catch {
       toast.error('Failed to delete');
     }
   };
@@ -40,7 +40,7 @@ const AdminStudents = () => {
       const res = await axiosInstance.put(`/users/${student._id}`, { isVerified: !student.isVerified });
       setStudents(prev => prev.map(s => s._id === student._id ? { ...s, isVerified: res.data.isVerified } : s));
       toast.success(res.data.isVerified ? 'Student activated' : 'Student deactivated');
-    } catch (err) {
+    } catch {
       toast.error('Failed to toggle status');
     }
   };

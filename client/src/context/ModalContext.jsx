@@ -21,7 +21,7 @@ export const ModalProvider = ({ children }) => {
   const handleAlertClose = useCallback(() => {
     closeAlert();
     if (alert.resolve) alert.resolve();
-  }, [closeAlert, alert.resolve]);
+  }, [closeAlert, alert]);
 
   const showConfirm = useCallback(({ title, message, confirmLabel = 'Confirm', cancelLabel = 'Cancel', destructive = false }) => {
     return new Promise((resolve) => {
@@ -36,12 +36,12 @@ export const ModalProvider = ({ children }) => {
   const handleConfirm = useCallback(() => {
     if (confirm.resolve) confirm.resolve(true);
     closeConfirm();
-  }, [closeConfirm, confirm.resolve]);
+  }, [closeConfirm, confirm]);
 
   const handleCancel = useCallback(() => {
     if (confirm.resolve) confirm.resolve(false);
     closeConfirm();
-  }, [closeConfirm, confirm.resolve]);
+  }, [closeConfirm, confirm]);
 
   return (
     <ModalContext.Provider value={{ showAlert, showConfirm }}>
@@ -67,12 +67,14 @@ export const ModalProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAlert = () => {
   const ctx = useContext(ModalContext);
   if (!ctx) throw new Error('useAlert must be used within ModalProvider');
   return ctx.showAlert;
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useConfirm = () => {
   const ctx = useContext(ModalContext);
   if (!ctx) throw new Error('useConfirm must be used within ModalProvider');

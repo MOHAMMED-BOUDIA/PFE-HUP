@@ -1,3 +1,5 @@
+const dns = require("dns");
+dns.setServers(["8.8.8.8", "8.8.4.4"]);
 const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
@@ -12,6 +14,47 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// Root status page
+app.get('/', (req, res) => {
+  res.send(`
+    <html>
+      <head>
+        <title>NAJAH API</title>
+        <style>
+          body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+          }
+          .card {
+            background: rgba(255,255,255,0.1);
+            padding: 40px 60px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+          }
+          h1 { font-size: 3rem; margin: 0; }
+          p { font-size: 1.2rem; margin-top: 10px; opacity: 0.9; }
+          .status { color: #10b981; font-weight: bold; }
+        </style>
+      </head>
+      <body>
+        <div class="card">
+          <h1>🚀 NAJAH Server</h1>
+          <p class="status">● Server is running</p>
+          <p>API available at <code>/api</code></p>
+        </div>
+      </body>
+    </html>
+  `);
+});
 
 // Routes
 app.use('/api/auth', require('./routes/authRoutes'));

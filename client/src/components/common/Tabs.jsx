@@ -1,5 +1,3 @@
-import { useState } from 'react';
-
 const Tabs = ({ tabs, activeTab, onChange }) => {
   return (
     <div className="border-b border-gray-200 dark:border-gray-800">

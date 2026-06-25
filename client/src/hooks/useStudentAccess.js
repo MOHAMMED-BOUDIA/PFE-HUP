@@ -10,6 +10,7 @@ const useStudentAccess = () => {
 
   useEffect(() => {
     if (!user || user.role !== 'student') {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setMembership({ status: 'none', group: null });
       setLoading(false);
       return;
@@ -27,6 +28,7 @@ const useStudentAccess = () => {
       }
     };
     fetch();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user?.id]);
 
   return {

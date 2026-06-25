@@ -21,6 +21,12 @@ export const AuthProvider = ({ children }) => {
     };
   };
 
+  const logout = () => {
+    localStorage.removeItem('token');
+    setToken(null);
+    setUser(null);
+  };
+
   useEffect(() => {
     const fetchCurrentUser = async () => {
       if (!token) {
@@ -32,7 +38,6 @@ export const AuthProvider = ({ children }) => {
         setUser(normalizeUser(response.data));
       } catch (error) {
         console.error('Error fetching current user:', error);
-        // If getting /auth/me fails, clear token to avoid infinite loading/retries
         logout();
       } finally {
         setLoading(false);
@@ -82,12 +87,6 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    setToken(null);
-    setUser(null);
-  };
-
   const updateUserProfileState = (updatedUser) => {
     setUser(normalizeUser(updatedUser));
   };
@@ -99,6 +98,7 @@ export const AuthProvider = ({ children }) => {
   );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (!context) {

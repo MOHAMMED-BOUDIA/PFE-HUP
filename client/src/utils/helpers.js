@@ -17,7 +17,7 @@ export const formatDate = (dateVal) => {
       month: 'short',
       day: 'numeric',
     });
-  } catch (err) {
+  } catch {
     return 'N/A';
   }
 };

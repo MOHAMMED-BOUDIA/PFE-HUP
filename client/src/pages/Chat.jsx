@@ -45,18 +45,6 @@ const Chat = () => {
     fetchGroups();
   }, [user]);
 
-  useEffect(() => {
-    if (activeGroup?._id) {
-      fetchMessages(activeGroup._id);
-      pollRef.current = setInterval(() => fetchMessages(activeGroup._id, true), 5000);
-      return () => clearInterval(pollRef.current);
-    }
-  }, [activeGroup?._id]);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
-
   const fetchMessages = async (groupId, silent = false) => {
     if (!silent) setLoadingMessages(true);
     try {
@@ -69,6 +57,18 @@ const Chat = () => {
     }
   };
 
+  useEffect(() => {
+    if (activeGroup?._id) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      fetchMessages(activeGroup._id);
+      pollRef.current = setInterval(() => fetchMessages(activeGroup._id, true), 5000);
+      return () => clearInterval(pollRef.current);
+    }
+  }, [activeGroup?._id]);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages]);
   const handleSend = async (e) => {
     e.preventDefault();
     if (!input.trim() || sending) return;
