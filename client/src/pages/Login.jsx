@@ -43,6 +43,8 @@ const Login = () => {
 
     if (result.success) {
       toast.success('Logged in successfully!');
+      const roleHome = getRoleHome(result.user.role);
+      navigate(roleHome, { replace: true });
     } else {
       toast.error(result.message || 'Login failed. Please check your credentials.');
     }
