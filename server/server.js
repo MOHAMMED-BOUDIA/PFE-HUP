@@ -11,22 +11,29 @@ dotenv.config();
 const app = express();
 
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://your-frontend.vercel.app', 'http://localhost:3000'],
+  origin: function (origin, callback) {
+    const allowed = [
+      'http://localhost:5173',
+      'http://localhost:3000',
+      process.env.CLIENT_URL
+    ].filter(Boolean);
+    if (!origin || allowed.includes(origin)) return callback(null, true);
+    callback(null, true);
+  },
   credentials: true
 }));
 app.use(express.json({ limit: '10mb' }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 app.use(async (req, res, next) => {
   try {
     await connectDB();
     next();
   } catch (err) {
-    res.status(500).json({ message: 'DB connection failed' });
+    console.error('DB middleware error:', err);
+    res.status(500).json({ message: 'Database connection failed', error: err.message });
   }
 });
 
-// Root status page
 app.get('/', (req, res) => {
   res.send(`
     <html>
@@ -58,7 +65,7 @@ app.get('/', (req, res) => {
       </head>
       <body>
         <div class="card">
-          <h1>🚀 NAJAH Server</h1>
+          <h1>NAJAH Server</h1>
           <p class="status">● Server is running</p>
           <p>API available at <code>/api</code></p>
         </div>
@@ -67,7 +74,6 @@ app.get('/', (req, res) => {
   `);
 });
 
-// Routes
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/users', require('./routes/userRoutes'));
 app.use('/api/projects', require('./routes/projectRoutes'));
