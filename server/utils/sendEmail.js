@@ -1,10 +1,8 @@
-const { Resend } = require('resend');
-
 let resend = null;
 
 const getResend = () => {
   if (!resend) {
-    resend = new Resend(process.env.RESEND_API_KEY);
+    resend = new (require('resend').Resend)(process.env.RESEND_API_KEY);
   }
   return resend;
 };
