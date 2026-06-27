@@ -36,7 +36,7 @@ exports.createUser = async (req, res) => {
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.find().select('-password');
+    const users = await User.find().select('-password -avatar').lean();
     res.json(users);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -102,7 +102,7 @@ exports.deleteUser = async (req, res) => {
 
 exports.getInstructors = async (req, res) => {
   try {
-    const instructors = await User.find({ role: 'instructor' }).select('-password');
+    const instructors = await User.find({ role: 'instructor' }).select('-password -avatar').lean();
     res.json(instructors);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -112,7 +112,7 @@ exports.getInstructors = async (req, res) => {
 exports.getMyInstructor = async (req, res) => {
   try {
     const Group = require('../models/Group');
-    const group = await Group.findOne({ members: req.user._id }).populate('instructor', '-password');
+    const group = await Group.findOne({ members: req.user._id }).populate('instructor', '-password -avatar');
     if (!group || !group.instructor) {
       return res.status(404).json({ message: 'No instructor assigned yet' });
     }
@@ -124,7 +124,7 @@ exports.getMyInstructor = async (req, res) => {
 
 exports.getStudents = async (req, res) => {
   try {
-    const students = await User.find({ role: 'student' }).select('-password');
+    const students = await User.find({ role: 'student' }).select('-password -avatar').lean();
     res.json(students);
   } catch (error) {
     res.status(500).json({ message: error.message });

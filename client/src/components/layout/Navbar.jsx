@@ -120,7 +120,13 @@ const Navbar = ({ onMenuToggle }) => {
         </button>
 
         <div className="hidden items-center gap-2 md:flex">
-         
+          <span className="text-sm font-bold text-[#FFB900]">
+            NAJAH
+          </span>
+          <span className="text-sm text-gray-400 dark:text-gray-600">|</span>
+          <span className="text-sm font-medium text-gray-500 dark:text-gray-400">
+            Workspace
+          </span>
           {pageName && (
             <>
               <span className="text-sm text-gray-300 dark:text-gray-600">/</span>

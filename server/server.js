@@ -1,9 +1,11 @@
 const express = require('express');
 const path = require('path');
 const mongoose = require('mongoose');
+const compression = require('compression');
 require('dotenv').config();
 
 const app = express();
+app.use(compression());
 
 // CORS — MUST be first, before everything
 app.use((req, res, next) => {

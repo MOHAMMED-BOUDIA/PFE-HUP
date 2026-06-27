@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { BrowserRouter as Router, Routes, Route, Outlet, Navigate } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -10,43 +10,47 @@ import Sidebar from './components/layout/Sidebar';
 import Navbar from './components/layout/Navbar';
 import ProtectedRoute from './components/layout/ProtectedRoute';
 import RoleProtectedRoute from './components/RoleProtectedRoute';
+import Loader from './components/common/Loader';
 
+// Light pages — eager load
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import VerifyEmail from './pages/VerifyEmail';
 import VerifyToken from './pages/VerifyToken';
-import Dashboard from './pages/Dashboard';
-import Projects from './pages/Projects';
-import ProjectDetails from './pages/ProjectDetails';
-import Tasks from './pages/Tasks';
-import Teams from './pages/Teams';
-import Documents from './pages/Documents';
-import Meetings from './pages/Meetings';
-import Resources from './pages/Resources';
-import Challenges from './pages/Challenges';
-import Profile from './pages/Profile';
-import Chat from './pages/Chat';
-import AdminPanel from './pages/AdminPanel';
-import Instructors from './pages/Instructors';
-import InstructorGroups from './pages/InstructorGroups';
-import MyGroups from './pages/MyGroups';
-import AdminDashboard from './pages/AdminDashboard';
-import AdminInstructors from './pages/AdminInstructors';
-import AdminStudents from './pages/AdminStudents';
-import AdminDepartments from './pages/AdminDepartments';
 import ForgotPassword from './pages/ForgotPassword';
 import ResetPassword from './pages/ResetPassword';
-import About from './pages/About';
-import Contact from './pages/Contact';
-import Pricing from './pages/Pricing';
-import FAQ from './pages/FAQ';
-import Terms from './pages/Terms';
-import Privacy from './pages/Privacy';
-import Help from './pages/Help';
-import Blog from './pages/Blog';
-import BlogDetail from './pages/BlogDetail';
-import Careers from './pages/Careers';
+
+// Heavy pages — lazy load
+const Dashboard = lazy(() => import('./pages/Dashboard'));
+const Projects = lazy(() => import('./pages/Projects'));
+const ProjectDetails = lazy(() => import('./pages/ProjectDetails'));
+const Tasks = lazy(() => import('./pages/Tasks'));
+const Teams = lazy(() => import('./pages/Teams'));
+const Documents = lazy(() => import('./pages/Documents'));
+const Meetings = lazy(() => import('./pages/Meetings'));
+const Resources = lazy(() => import('./pages/Resources'));
+const Challenges = lazy(() => import('./pages/Challenges'));
+const Profile = lazy(() => import('./pages/Profile'));
+const Chat = lazy(() => import('./pages/Chat'));
+const AdminPanel = lazy(() => import('./pages/AdminPanel'));
+const Instructors = lazy(() => import('./pages/Instructors'));
+const InstructorGroups = lazy(() => import('./pages/InstructorGroups'));
+const MyGroups = lazy(() => import('./pages/MyGroups'));
+const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
+const AdminInstructors = lazy(() => import('./pages/AdminInstructors'));
+const AdminStudents = lazy(() => import('./pages/AdminStudents'));
+const AdminDepartments = lazy(() => import('./pages/AdminDepartments'));
+const About = lazy(() => import('./pages/About'));
+const Contact = lazy(() => import('./pages/Contact'));
+const Pricing = lazy(() => import('./pages/Pricing'));
+const FAQ = lazy(() => import('./pages/FAQ'));
+const Terms = lazy(() => import('./pages/Terms'));
+const Privacy = lazy(() => import('./pages/Privacy'));
+const Help = lazy(() => import('./pages/Help'));
+const Blog = lazy(() => import('./pages/Blog'));
+const BlogDetail = lazy(() => import('./pages/BlogDetail'));
+const Careers = lazy(() => import('./pages/Careers'));
 
 const DashboardLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -66,7 +70,9 @@ const DashboardLayout = () => {
           onToggleCollapse={() => setSidebarCollapsed((prev) => !prev)}
         />
         <main className="flex-1 overflow-y-auto p-4 md:p-6">
-          <Outlet />
+          <Suspense fallback={<Loader />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>
@@ -78,6 +84,7 @@ function App() {
     <AuthProvider>
       <ModalProvider>
         <Router>
+        <Suspense fallback={<Loader />}>
         <Routes>
           {/* Public pages */}
           <Route path="/" element={<Home />} />
@@ -87,16 +94,16 @@ function App() {
           <Route path="/verify/:token" element={<VerifyToken />} />
           <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/reset-password/:token" element={<ResetPassword />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/pricing" element={<Pricing />} />
-          <Route path="/faq" element={<FAQ />} />
-          <Route path="/terms" element={<Terms />} />
-          <Route path="/privacy" element={<Privacy />} />
-          <Route path="/help" element={<Help />} />
-          <Route path="/blog" element={<Blog />} />
-          <Route path="/blog/:id" element={<BlogDetail />} />
-          <Route path="/careers" element={<Careers />} />
+          <Route path="/about" element={<Suspense fallback={<Loader />}><About /></Suspense>} />
+          <Route path="/contact" element={<Suspense fallback={<Loader />}><Contact /></Suspense>} />
+          <Route path="/pricing" element={<Suspense fallback={<Loader />}><Pricing /></Suspense>} />
+          <Route path="/faq" element={<Suspense fallback={<Loader />}><FAQ /></Suspense>} />
+          <Route path="/terms" element={<Suspense fallback={<Loader />}><Terms /></Suspense>} />
+          <Route path="/privacy" element={<Suspense fallback={<Loader />}><Privacy /></Suspense>} />
+          <Route path="/help" element={<Suspense fallback={<Loader />}><Help /></Suspense>} />
+          <Route path="/blog" element={<Suspense fallback={<Loader />}><Blog /></Suspense>} />
+          <Route path="/blog/:id" element={<Suspense fallback={<Loader />}><BlogDetail /></Suspense>} />
+          <Route path="/careers" element={<Suspense fallback={<Loader />}><Careers /></Suspense>} />
 
           {/* Protected dashboard routes */}
           <Route element={<ProtectedRoute><DashboardLayout /></ProtectedRoute>}>
@@ -129,6 +136,7 @@ function App() {
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
       </Router>
 
       <ToastContainer
