@@ -1,30 +1,46 @@
 const express = require('express');
-const path = require('path');
-const cors = require('cors');
-const dotenv = require('dotenv');
-const connectDB = require('./config/db');
-
-dotenv.config();
+const mongoose = require('mongoose');
+require('dotenv').config();
 
 const app = express();
 
-app.use(cors({
-  origin: true,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
-
-app.options('*', cors());
+// CORS — MUST be first, before everything
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  if (req.method === 'OPTIONS') return res.sendStatus(200);
+  next();
+});
 
 app.use(express.json());
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+
+// MongoDB connection (cached for serverless)
+let cached = global.mongoose;
+if (!cached) cached = global.mongoose = { conn: null, promise: null };
+
+const connectDB = async () => {
+  if (cached.conn) return cached.conn;
+  if (!cached.promise) {
+    cached.promise = mongoose.connect(process.env.MONGO_URI);
+  }
+  cached.conn = await cached.promise;
+  return cached.conn;
+};
+
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    res.status(500).json({ message: 'DB connection failed', error: err.message });
+  }
+});
 
 let seeded = false;
 
 app.use(async (req, res, next) => {
   try {
-    await connectDB();
     if (!seeded && process.env.NODE_ENV === 'production') {
       seeded = true;
       const Department = require('./models/Department');
@@ -36,12 +52,13 @@ app.use(async (req, res, next) => {
     }
     next();
   } catch (err) {
-    return res.status(500).json({ message: 'Database connection failed', error: err.message });
+    console.error('Seed error:', err);
+    next();
   }
 });
 
 app.get('/', (req, res) => {
-  res.json({ status: 'NAJAH API is running', version: '1.0' });
+  res.json({ status: 'NAJAH API running', cors: 'enabled' });
 });
 
 app.get('/api/create-admin-once', async (req, res) => {
