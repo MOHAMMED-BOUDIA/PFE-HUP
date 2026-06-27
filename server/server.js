@@ -121,6 +121,7 @@ app.use('/api/challenges', require('./routes/challengeRoutes'));
 app.use('/api/departments', require('./routes/departmentRoutes'));
 app.use('/api/notifications', require('./routes/notificationRoutes'));
 app.use('/api/messages', require('./routes/messageRoutes'));
+app.use('/api/analytics', require('./routes/analyticsRoutes'));
 
 app.use((err, req, res, next) => {
   console.error('Error:', err);

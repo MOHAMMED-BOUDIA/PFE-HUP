@@ -1,224 +1,229 @@
 import { useState, useEffect } from 'react';
-import { FaUsers, FaChalkboardTeacher, FaGraduationCap, FaLayerGroup } from 'react-icons/fa';
-import { toast } from 'react-toastify';
-import {
-  ResponsiveContainer, PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, LineChart, Line, CartesianGrid
-} from 'recharts';
 import axiosInstance from '../api/axios';
-import StatsCard from '../components/common/StatsCard';
-import Loader from '../components/common/Loader';
+import {
+  AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell,
+  XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer
+} from 'recharts';
+import CalendarHeatmap from 'react-calendar-heatmap';
+import 'react-calendar-heatmap/dist/styles.css';
+import {
+  FiUsers, FiUser, FiUserCheck, FiLayers,
+  FiTrendingUp, FiTarget, FiAward, FiActivity
+} from 'react-icons/fi';
+
+const StatCard = ({ icon, label, value, color }) => (
+  <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm flex items-center justify-between">
+    <div>
+      <p className="text-sm text-gray-500">{label}</p>
+      <p className="text-3xl font-bold mt-2">{value}</p>
+    </div>
+    <div className={`w-14 h-14 ${color} rounded-xl flex items-center justify-center text-white text-2xl`}>
+      {icon}
+    </div>
+  </div>
+);
+
+const CompletionCard = ({ title, rate, icon, color }) => (
+  <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+    <div className="flex items-center gap-3 mb-4">
+      <div className="text-2xl" style={{ color }}>{icon}</div>
+      <h3 className="font-semibold">{title}</h3>
+    </div>
+    <div className="flex items-end gap-2 mb-3">
+      <span className="text-4xl font-bold" style={{ color }}>{rate}%</span>
+    </div>
+    <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+      <div className="h-full rounded-full transition-all duration-1000"
+        style={{ width: `${rate}%`, backgroundColor: color }}
+      />
+    </div>
+  </div>
+);
 
 const AdminDashboard = () => {
+  const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalUsers: 0,
-    totalStudents: 0,
-    totalInstructors: 0,
-    totalAdmins: 0,
-    totalGroups: 0,
-    totalProjects: 0,
-    verifiedUsers: 0,
-    unverifiedUsers: 0,
-  });
-  const [statusChartData, setStatusChartData] = useState([]);
-  const [growthData, setGrowthData] = useState([]);
-  const [topInstructors, setTopInstructors] = useState([]);
-
-  const COLORS = {
-    'Pending': '#f59e0b',
-    'Approved': '#0284c7',
-    'In Progress': '#8b5cf6',
-    'Completed': '#10b981',
-    'Rejected': '#ef4444',
-  };
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [usersRes, groupsRes, projectsRes] = await Promise.all([
-          axiosInstance.get('/users'),
-          axiosInstance.get('/groups'),
-          axiosInstance.get('/projects'),
-        ]);
-        const users = usersRes.data || [];
-        const groups = groupsRes.data || [];
-        const projects = projectsRes.data || [];
-
-        const students = users.filter(u => u.role === 'student');
-        const instructors = users.filter(u => u.role === 'instructor');
-        const admins = users.filter(u => u.role === 'admin');
-        const verified = users.filter(u => u.isVerified);
-        const unverified = users.filter(u => !u.isVerified);
-
-        setStats({
-          totalUsers: users.length,
-          totalStudents: students.length,
-          totalInstructors: instructors.length,
-          totalAdmins: admins.length,
-          totalGroups: groups.length,
-          totalProjects: projects.length,
-          verifiedUsers: verified.length,
-          unverifiedUsers: unverified.length,
-        });
-
-        // Status pie chart
-        const statusCounts = projects.reduce((acc, curr) => {
-          const s = curr.status || 'pending';
-          acc[s] = (acc[s] || 0) + 1;
-          return acc;
-        }, {});
-        const statusMap = { 'pending': 'Pending', 'approved': 'Approved', 'in-progress': 'In Progress', 'completed': 'Completed', 'rejected': 'Rejected' };
-        setStatusChartData(Object.keys(statusCounts).map(key => ({
-          name: statusMap[key] || key,
-          value: statusCounts[key],
-        })));
-
-        // Growth chart (registrations per month)
-        const monthly = {};
-        users.forEach(u => {
-          const d = new Date(u.createdAt);
-          const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
-          monthly[key] = (monthly[key] || 0) + 1;
-        });
-        setGrowthData(Object.entries(monthly).sort().map(([month, count]) => ({ month, count })));
-
-        // Top instructors by group count
-        const instrGroupCount = {};
-        groups.forEach(g => {
-          const id = g.instructor?._id || g.instructor;
-          if (id) instrGroupCount[id] = (instrGroupCount[id] || 0) + 1;
-        });
-        const top = instructors.map(inst => ({
-          name: inst.name,
-          groups: instrGroupCount[inst._id] || 0,
-        })).sort((a, b) => b.groups - a.groups).slice(0, 5);
-        setTopInstructors(top);
-
-      } catch (err) {
-        console.error(err);
-        toast.error('Failed to load admin statistics');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
+    let mounted = true;
+    axiosInstance.get('/analytics')
+      .then(res => { if (mounted) setData(res.data); })
+      .catch(() => {})
+      .finally(() => { if (mounted) setLoading(false); });
+    return () => { mounted = false; };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="flex h-[70vh] items-center justify-center">
-        <Loader size="lg" />
-      </div>
-    );
-  }
+  if (loading) return <div className="p-8 text-center text-gray-500">Loading analytics...</div>;
+  if (!data) return <div className="p-8 text-center text-gray-500">No data available</div>;
+
+  const growthData = data.userGrowth.map(item => ({
+    month: `${item._id.year}-${String(item._id.month).padStart(2, '0')}`,
+    Students: item.students,
+    Instructors: item.instructors,
+    Total: item.total
+  }));
+
+  const projectStatusData = [
+    { name: 'Completed', value: data.stats.completedProjects, color: '#10b981' },
+    { name: 'In Progress', value: data.stats.inProgressProjects, color: '#0084D1' },
+    { name: 'Pending', value: data.stats.pendingProjects, color: '#FFB900' },
+  ];
+
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setFullYear(startDate.getFullYear() - 1);
 
   return (
-    <div className="space-y-6 p-1">
+    <div className="space-y-6 p-6">
       <div>
-        <h1 className="text-2xl font-black text-gray-900 dark:text-white">Admin Dashboard</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">System-wide overview and statistics.</p>
+        <h1 className="text-3xl font-bold">Admin Analytics</h1>
+        <p className="text-gray-500">Comprehensive overview of platform activity</p>
       </div>
 
-      {/* KPI Cards */}
-      <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <StatsCard title="Total Users" value={stats.totalUsers} icon={FaUsers} color="indigo" />
-        <StatsCard title="Students" value={stats.totalStudents} icon={FaGraduationCap} color="emerald" />
-        <StatsCard title="Instructors" value={stats.totalInstructors} icon={FaChalkboardTeacher} color="amber" />
-        <StatsCard title="Total Groups" value={stats.totalGroups} icon={FaLayerGroup} color="indigo" />
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <StatCard icon={<FiUsers />} label="Total Users" value={data.stats.totalUsers} color="bg-[#0084D1]" />
+        <StatCard icon={<FiUser />} label="Students" value={data.stats.totalStudents} color="bg-green-500" />
+        <StatCard icon={<FiUserCheck />} label="Instructors" value={data.stats.totalInstructors} color="bg-[#FFB900]" />
+        <StatCard icon={<FiLayers />} label="Total Groups" value={data.stats.totalGroups} color="bg-purple-500" />
       </div>
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-        {/* Project Status Pie Chart */}
-        <div className="rounded-3xl border border-gray-150 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4">Project Status Distribution</h3>
-          <div className="min-h-[300px] flex items-center justify-center">
-            {statusChartData.length === 0 ? (
-              <span className="text-sm text-gray-400">No projects</span>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <PieChart>
-                  <Pie data={statusChartData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value">
-                    {statusChartData.map(entry => (
-                      <Cell key={entry.name} fill={COLORS[entry.name] || '#6366f1'} />
-                    ))}
-                  </Pie>
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                  <Legend verticalAlign="bottom" height={36} iconType="circle" />
-                </PieChart>
-              </ResponsiveContainer>
-            )}
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <CompletionCard title="Project Completion Rate" rate={data.stats.completionRate} icon={<FiTarget />} color="#0084D1" />
+        <CompletionCard title="Task Completion Rate" rate={data.stats.taskCompletionRate} icon={<FiAward />} color="#FFB900" />
+      </div>
+
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <FiTrendingUp className="text-[#0084D1]" /> User Growth (Last 12 Months)
+        </h3>
+        <ResponsiveContainer width="100%" height={300}>
+          <AreaChart data={growthData}>
+            <defs>
+              <linearGradient id="colorStudents" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#0084D1" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#0084D1" stopOpacity={0}/>
+              </linearGradient>
+              <linearGradient id="colorInstructors" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor="#FFB900" stopOpacity={0.8}/>
+                <stop offset="95%" stopColor="#FFB900" stopOpacity={0}/>
+              </linearGradient>
+            </defs>
+            <CartesianGrid strokeDasharray="3 3" />
+            <XAxis dataKey="month" />
+            <YAxis />
+            <Tooltip />
+            <Legend />
+            <Area type="monotone" dataKey="Students" stroke="#0084D1" fillOpacity={1} fill="url(#colorStudents)" />
+            <Area type="monotone" dataKey="Instructors" stroke="#FFB900" fillOpacity={1} fill="url(#colorInstructors)" />
+          </AreaChart>
+        </ResponsiveContainer>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-4">Project Status Distribution</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <PieChart>
+              <Pie data={projectStatusData} cx="50%" cy="50%" outerRadius={100} dataKey="value"
+                label={({ name, value }) => `${name}: ${value}`}>
+                {projectStatusData.map((entry, i) => (
+                  <Cell key={i} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip />
+            </PieChart>
+          </ResponsiveContainer>
         </div>
 
-        {/* Registration Growth Chart */}
-        <div className="rounded-3xl border border-gray-150 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4">User Registrations (Monthly)</h3>
-          <div className="min-h-[300px]">
-            {growthData.length === 0 ? (
-              <div className="flex h-full items-center justify-center">
-                <span className="text-sm text-gray-400">No data</span>
-              </div>
-            ) : (
-              <ResponsiveContainer width="100%" height={300}>
-                <LineChart data={growthData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis dataKey="month" tick={{ fontSize: 11 }} />
-                  <YAxis tick={{ fontSize: 11 }} />
-                  <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                  <Line type="monotone" dataKey="count" stroke="#0084D1" strokeWidth={2} dot={{ r: 4 }} />
-                </LineChart>
-              </ResponsiveContainer>
-            )}
-          </div>
+        <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+          <h3 className="text-lg font-semibold mb-4">Users by Department</h3>
+          <ResponsiveContainer width="100%" height={300}>
+            <BarChart data={data.departmentStats}>
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis dataKey="_id" tick={{ fontSize: 11 }} angle={-15} textAnchor="end" />
+              <YAxis />
+              <Tooltip />
+              <Bar dataKey="count" fill="#0084D1" radius={[8, 8, 0, 0]} />
+            </BarChart>
+          </ResponsiveContainer>
         </div>
+      </div>
 
-        {/* Users Overview */}
-        <div className="rounded-3xl border border-gray-150 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4">Users Overview</h3>
-          <div className="min-h-[200px]">
-            <ResponsiveContainer width="100%" height={200}>
-              <BarChart data={[
-                { name: 'Verified', count: stats.verifiedUsers },
-                { name: 'Unverified', count: stats.unverifiedUsers },
-                { name: 'Students', count: stats.totalStudents },
-                { name: 'Instructors', count: stats.totalInstructors },
-                { name: 'Admins', count: stats.totalAdmins },
-              ]} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-                <YAxis tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={{ borderRadius: '12px', border: 'none' }} />
-                <Bar dataKey="count" radius={[6, 6, 0, 0]}>
-                  {['#10b981', '#ef4444', '#0084D1', '#f59e0b', '#0084D1'].map((color, i) => (
-                    <Cell key={i} fill={color} />
-                  ))}
-                </Bar>
-              </BarChart>
-            </ResponsiveContainer>
-          </div>
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <FiActivity className="text-[#FFB900]" /> Activity Heatmap (Last Year)
+        </h3>
+        <div className="overflow-x-auto">
+          <CalendarHeatmap
+            startDate={startDate}
+            endDate={endDate}
+            values={data.activityData}
+            classForValue={(value) => {
+              if (!value) return 'color-empty';
+              if (value.count >= 10) return 'color-scale-4';
+              if (value.count >= 5) return 'color-scale-3';
+              if (value.count >= 2) return 'color-scale-2';
+              return 'color-scale-1';
+            }}
+            tooltipDataAttrs={(value) => ({
+              'data-tip': value?.date ? `${value.date}: ${value.count} activities` : 'No data'
+            })}
+          />
         </div>
+        <style>{`
+          .color-empty { fill: #ebedf0; }
+          .color-scale-1 { fill: #c6e6f5; }
+          .color-scale-2 { fill: #7cc3e3; }
+          .color-scale-3 { fill: #2196f3; }
+          .color-scale-4 { fill: #0084D1; }
+        `}</style>
+      </div>
 
-        {/* Top Instructors */}
-        <div className="rounded-3xl border border-gray-150 bg-white p-6 shadow-sm dark:border-gray-800 dark:bg-gray-900">
-          <h3 className="text-base font-bold text-gray-900 dark:text-white mb-4">Top Instructors by Groups</h3>
-          {topInstructors.length === 0 ? (
-            <div className="flex h-[200px] items-center justify-center">
-              <span className="text-sm text-gray-400">No instructors</span>
-            </div>
-          ) : (
-            <div className="space-y-3">
-              {topInstructors.map((inst, i) => (
-                <div key={i} className="flex items-center justify-between rounded-xl bg-gray-50 px-4 py-3 dark:bg-gray-800">
-                  <div className="flex items-center gap-3">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#0084D1]/10 text-sm font-bold text-[#0084D1]">
-                      {i + 1}
+      <div className="bg-white dark:bg-gray-800 rounded-xl p-6 shadow-sm">
+        <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
+          <FiAward className="text-[#FFB900]" /> Most Active Instructors
+        </h3>
+        <div className="overflow-x-auto">
+          <table className="w-full">
+            <thead className="bg-gray-50 dark:bg-gray-700">
+              <tr>
+                <th className="px-4 py-3 text-left text-sm font-medium">Rank</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Instructor</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Department</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Groups</th>
+                <th className="px-4 py-3 text-left text-sm font-medium">Students</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y">
+              {data.topInstructors.map((inst, i) => (
+                <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-700">
+                  <td className="px-4 py-3">
+                    {i === 0 && <span>🥇</span>}
+                    {i === 1 && <span>🥈</span>}
+                    {i === 2 && <span>🥉</span>}
+                    {i > 2 && <span className="text-gray-500">#{i + 1}</span>}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div>
+                      <div className="font-medium">{inst.name}</div>
+                      <div className="text-xs text-gray-500">{inst.email}</div>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3 text-sm">{inst.department || '-'}</td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
+                      {inst.groupsCount}
                     </span>
-                    <span className="font-medium text-gray-700 dark:text-gray-300">{inst.name}</span>
-                  </div>
-                    <span className="text-sm font-bold text-[#0084D1]">{inst.groups} groups</span>
-                </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
+                      {inst.studentsCount}
+                    </span>
+                  </td>
+                </tr>
               ))}
-            </div>
-          )}
+            </tbody>
+          </table>
         </div>
       </div>
     </div>
