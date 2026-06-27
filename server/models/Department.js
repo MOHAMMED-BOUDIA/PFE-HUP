@@ -13,4 +13,4 @@ const departmentSchema = new mongoose.Schema({
   },
 }, { timestamps: true });
 
-module.exports = mongoose.model('Department', departmentSchema);
+module.exports = mongoose.models.Department || mongoose.model('Department', departmentSchema);

@@ -1,8 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { FaEnvelope, FaProjectDiagram, FaSpinner, FaArrowLeft } from 'react-icons/fa';
+import { FaEnvelope, FaSpinner, FaArrowLeft, FaCheckCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import axiosInstance from '../api/axios';
+import AuthLayout from '../components/auth/AuthLayout';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
@@ -15,7 +16,6 @@ const ForgotPassword = () => {
       toast.error('Please enter your email address.');
       return;
     }
-
     setLoading(true);
     try {
       await axiosInstance.post('/auth/forgot-password', { email });
@@ -28,84 +28,73 @@ const ForgotPassword = () => {
     }
   };
 
+  const inputClass = 'block w-full rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-800/50 py-3.5 pl-11 pr-4 text-sm outline-none transition-all duration-200 focus:border-[#0084D1] focus:bg-white dark:focus:bg-gray-800 focus:ring-2 focus:ring-[#0084D1]/20 dark:text-white placeholder:text-gray-400';
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#0084D1] via-[#0277BD] to-[#0066A0] p-4 transition-colors duration-200">
-      <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl dark:bg-gray-900 border border-[#0084D1]/10">
-        
-        {/* Brand Logo */}
-        <div className="flex flex-col items-center justify-center text-center">
-          <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#0084D1]/10 text-[#0084D1] shadow-sm">
-            <FaProjectDiagram className="h-6 w-6" />
+    <AuthLayout title="Reset your password" subtitle="Enter your email and we'll send you a reset link">
+      {sent ? (
+        <div className="space-y-6 animate-fadeIn">
+          <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800 p-6 text-center space-y-3">
+            <FaCheckCircle className="h-10 w-10 text-emerald-500 mx-auto" />
+            <p className="text-sm font-semibold text-emerald-700 dark:text-emerald-400">
+              Reset link sent successfully!
+            </p>
+            <p className="text-xs text-emerald-600 dark:text-emerald-500">
+              Check your Gmail inbox for the password reset link.
+            </p>
           </div>
-          <h2 className="mt-4 text-2xl font-black text-gray-900 dark:text-white">
-            Reset your password
-          </h2>
-          <p className="mt-2 text-sm text-gray-500 dark:text-gray-400">
-            Enter your Gmail address and we'll send you a reset link.
-          </p>
+          <Link
+            to="/login"
+            className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-[#FFB900] to-[#0084D1] py-3.5 text-sm font-bold text-white shadow-lg shadow-[#0084D1]/25 transition-all duration-300 hover:scale-[1.02]"
+          >
+            <FaArrowLeft className="h-4 w-4" />
+            Back to login
+          </Link>
         </div>
-
-        {sent ? (
-          <div className="mt-8 text-center space-y-4">
-            <div className="rounded-2xl bg-emerald-50 p-6 dark:bg-emerald-950/20">
-              <p className="text-sm font-medium text-emerald-700 dark:text-emerald-400">
-                Check your Gmail inbox for the password reset link.
-              </p>
+      ) : (
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+              Email Address
+            </label>
+            <div className="relative">
+              <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
+                <FaEnvelope className="h-4 w-4" />
+              </span>
+              <input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className={inputClass}
+                placeholder="you@gmail.com"
+              />
             </div>
-            <Link
-              to="/login"
-              className="inline-flex items-center gap-2 text-sm font-semibold text-[#0084D1] hover:text-[#0277BD]"
-            >
-              <FaArrowLeft className="h-4 w-4" />
-              Back to login
-            </Link>
           </div>
-        ) : (
-          <form onSubmit={handleSubmit} className="mt-8 space-y-6">
-            <div className="space-y-1.5">
-              <label className="text-sm font-semibold text-gray-700 dark:text-gray-300">
-                Email Address
-              </label>
-              <div className="relative">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-4 text-gray-400">
-                  <FaEnvelope className="h-4 w-4" />
-                </span>
-                <input
-                  type="email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="block w-full rounded-2xl border border-gray-200 bg-gray-50/50 py-3.5 pl-11 pr-4 text-sm outline-none transition focus:border-[#0084D1] focus:bg-white dark:border-gray-800 dark:bg-gray-800/40 dark:text-white dark:focus:bg-gray-800"
-                  placeholder="you@gmail.com"
-                />
-              </div>
-            </div>
 
-            <button
-              type="submit"
-              disabled={loading}
-              className="flex w-full items-center justify-center gap-2 rounded-2xl bg-[#0084D1] py-3.5 text-sm font-semibold text-white shadow-lg shadow-[#0084D1]/20 hover:bg-[#0277BD] disabled:bg-[#0084D1]/50 focus:outline-none transition"
-            >
-              {loading && <FaSpinner className="animate-spin" />}
-              Send Reset Link
-            </button>
-          </form>
-        )}
+          <button
+            type="submit"
+            disabled={loading}
+            className="group relative flex w-full items-center justify-center gap-2 overflow-hidden rounded-xl bg-gradient-to-r from-[#FFB900] to-[#0084D1] py-3.5 text-sm font-bold text-white shadow-lg shadow-[#0084D1]/25 transition-all duration-300 hover:scale-[1.02] hover:shadow-xl hover:shadow-[#0084D1]/30 disabled:opacity-60 disabled:cursor-not-allowed disabled:hover:scale-100"
+          >
+            <span className="absolute inset-0 bg-white/0 group-hover:bg-white/10 transition-colors" />
+            {loading && <FaSpinner className="h-4 w-4 animate-spin" />}
+            {loading ? 'Sending...' : 'Send Reset Link'}
+          </button>
+        </form>
+      )}
 
-        {/* Footer */}
-        <div className="mt-8 border-t border-gray-150 pt-5 text-center dark:border-gray-800">
-          <p className="text-sm text-gray-500 dark:text-gray-400">
-            Remember your password?{' '}
-            <Link
-              to="/login"
-              className="font-semibold text-[#0084D1] hover:text-[#0277BD]"
-            >
-              Sign in
-            </Link>
-          </p>
-        </div>
-      </div>
-    </div>
+      {/* Footer */}
+      <p className="mt-8 text-center text-sm text-gray-500 dark:text-gray-400">
+        Remember your password?{' '}
+        <Link
+          to="/login"
+          className="font-semibold text-[#0084D1] hover:text-[#0277BD] transition-colors"
+        >
+          Sign in
+        </Link>
+      </p>
+    </AuthLayout>
   );
 };
 

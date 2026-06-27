@@ -44,12 +44,13 @@ export default function Footer() {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-[#FFB900] to-[#0084D1] flex items-center justify-center text-white font-bold text-sm">
-                N
-              </div>
-              <span className="text-lg font-bold text-white">NAJAH</span>
-            </Link>
+           {/* Logo */}
+          <Link to="/" className="flex items-center gap-2 group">
+            <img src="/img/najah-circle-removebg-preview.png" alt="najah" className="w-8 h-8 object-contain group-hover:scale-105 transition-transform" />
+            <span className="text-xl font-bold bg-gradient-to-r from-[#FFB900] to-[#0084D1] bg-clip-text text-transparent">
+              Najah
+            </span>
+          </Link>
             <p className="text-sm text-gray-400 leading-relaxed mb-6">
               Empowering students through quality online education
             </p>

@@ -145,6 +145,53 @@ exports.login = async (req, res) => {
   }
 };
 
+exports.oauthLogin = async (req, res) => {
+  try {
+    const { name, email, avatar, provider } = req.body;
+
+    if (!email || !provider) {
+      return res.status(400).json({ message: 'Email and provider are required' });
+    }
+
+    let user = await User.findOne({ email: email.toLowerCase().trim() });
+
+    if (!user) {
+      const randomPassword = await bcrypt.hash(Math.random().toString(36), 10);
+      user = await User.create({
+        name: name || email.split('@')[0],
+        email: email.toLowerCase().trim(),
+        password: randomPassword,
+        avatar: avatar || '',
+        role: 'student',
+        isVerified: true,
+        provider,
+      });
+    } else {
+      user.provider = provider;
+      if (avatar) user.avatar = avatar;
+      await user.save();
+    }
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: '7d',
+    });
+
+    res.json({
+      token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+        avatar: user.avatar,
+        isVerified: user.isVerified,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
 exports.getMe = async (req, res) => {
   try {
     const user = await User.findById(req.user._id).select('-password');

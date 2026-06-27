@@ -111,17 +111,15 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
       )}
 
       <aside 
-        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-800 dark:bg-gray-900 md:sticky md:translate-x-0 ${
+        className={`fixed top-0 bottom-0 left-0 z-50 flex flex-col h-screen overflow-hidden border-r border-gray-200 bg-white transition-all duration-300 dark:border-gray-800 dark:bg-gray-900 md:sticky md:translate-x-0 ${
           collapsed ? 'w-16' : 'w-64'
         } ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className={`flex h-16 items-center border-b border-gray-100 dark:border-gray-800 ${collapsed ? 'justify-center px-0' : 'justify-between px-6'}`}>
+        <div className={`flex h-16 shrink-0 items-center border-b border-gray-100 dark:border-gray-800 ${collapsed ? 'justify-center px-0' : 'justify-between px-6'}`}>
           <div className={`flex items-center ${collapsed ? 'justify-center' : 'gap-2'}`}>
-            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-[#FFB900] text-white shadow-md shadow-[#FFB900]/30">
-              <FaProjectDiagram className="h-5 w-5" />
-            </div>
+            <img src="/img/najah.png" alt="NAJAH" className="w-10 h-10 object-contain" />
             {!collapsed && (
               <span className="text-lg font-bold text-gray-900 dark:text-white">
                 NAJAH
@@ -140,18 +138,32 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
           )}
         </div>
 
-        <div className={`border-b border-gray-100 dark:border-gray-800 ${collapsed ? 'p-2' : 'p-4'}`}>
+        <div className={`shrink-0 border-b border-gray-100 dark:border-gray-800 ${collapsed ? 'p-2' : 'p-4'}`}>
           <div className={`flex items-center rounded-2xl bg-gray-50 dark:bg-gray-800/40 ${collapsed ? 'justify-center p-2' : 'gap-3 p-3'}`}>
-            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-              {user?.avatar ? (
-                <img
-                  src={getAvatarUrl(user.avatar)}
-                  alt={user.name}
-                  className="w-full h-full object-cover object-top"
-                />
-              ) : (
-                user?.name ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) : 'U'
-              )}
+            <div className="w-10 h-10 rounded-full flex-shrink-0">
+              {(() => {
+                const avatarUrl = user?.avatar
+                  ? (user.avatar.startsWith('http') || user.avatar.startsWith('data:') ? user.avatar : `https://back-njah.vercel.app/${user.avatar.replace(/^\//, '')}`)
+                  : null;
+                const initials = user?.name
+                  ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                  : 'U';
+                return (
+                  <div className="relative w-full h-full">
+                    {avatarUrl && (
+                      <img
+                        src={avatarUrl}
+                        alt={user.name}
+                        className="absolute inset-0 w-full h-full rounded-full object-cover object-top"
+                        onError={(e) => { e.target.remove(); }}
+                      />
+                    )}
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-[#FFB900] to-[#0084D1] flex items-center justify-center text-white font-bold text-sm">
+                      {initials}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
             {!collapsed && (
               <div className="overflow-hidden">
@@ -172,7 +184,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
           </div>
         </div>
 
-        <nav className={`flex-1 space-y-1 overflow-visible ${collapsed ? 'p-2' : 'p-4'}`}>
+        <nav className={`flex-1 overflow-y-auto no-scrollbar ${collapsed ? 'space-y-1 p-2' : 'space-y-1 p-4'}`}>
           {menuItems.map((item) => (
             <NavLink
               key={item.name}
@@ -192,7 +204,7 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
           ))}
         </nav>
 
-        <div className={`border-t border-gray-200 dark:border-gray-700 ${collapsed ? 'p-2' : 'p-4'}`}>
+        <div className={`mt-auto shrink-0 border-t border-gray-200 dark:border-gray-700 ${collapsed ? 'p-2' : 'p-4'}`}>
           <button
             onClick={handleLogout}
             type="button"

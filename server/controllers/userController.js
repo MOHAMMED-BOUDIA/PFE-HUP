@@ -80,10 +80,9 @@ exports.updateUser = async (req, res) => {
 exports.updateAvatar = async (req, res) => {
   try {
     if (!req.file) return res.status(400).json({ message: 'No file uploaded' });
-    const dataUri = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { avatar: dataUri },
+      { avatar: req.file.path },
       { new: true }
     ).select('-password');
     res.json(user);

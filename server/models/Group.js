@@ -42,4 +42,4 @@ const groupSchema = new mongoose.Schema({
   }
 }, { timestamps: true });
 
-module.exports = mongoose.model('Group', groupSchema);
+module.exports = mongoose.models.Group || mongoose.model('Group', groupSchema);

@@ -12,6 +12,30 @@ const avatars = [
 ];
 
 const CTAButton = memo(function CTAButton({ children, to, primary }) {
+  const isHash = to.startsWith('#');
+  if (isHash) {
+    const handleClick = (e) => {
+      e.preventDefault();
+      const target = document.getElementById(to.replace('#', ''));
+      if (target) {
+        target.scrollIntoView({ behavior: 'smooth' });
+      }
+    };
+    return (
+      <a
+        href={`/${to}`}
+        onClick={handleClick}
+        className={`relative inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm transition-all duration-300 ${
+          primary
+            ? 'bg-gradient-to-r from-[#FFB900] to-[#0084D1] text-white shadow-xl shadow-[#FFB900]/25 hover:shadow-[#FFB900]/40 hover:scale-[1.03]'
+            : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+        }`}
+      >
+        {children}
+        {primary && <HiArrowRight className="w-4 h-4 group-hover:translate-x-0.5 transition-transform" />}
+      </a>
+    );
+  }
   return (
     <Link
       to={to}
@@ -124,14 +148,7 @@ const ScrollIndicator = memo(function ScrollIndicator() {
       transition={{ delay: 2, duration: 0.5 }}
       className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
     >
-      <span className="text-xs text-gray-400 dark:text-gray-500 font-medium">Scroll to explore</span>
-      <motion.div
-        animate={{ y: [0, 8, 0] }}
-        transition={{ duration: 2, repeat: Infinity }}
-        className="w-5 h-8 rounded-full border border-gray-300 dark:border-gray-600 flex items-start justify-center pt-1.5"
-      >
-        <div className="w-1 h-2 rounded-full bg-[#0084D1]" />
-      </motion.div>
+     
     </motion.div>
   );
 });
@@ -189,7 +206,7 @@ function HeroSection() {
                 transition={{ delay: 0.3, duration: 0.4 }}
                 className="text-lg text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed"
               >
-                NAJAH is the modern learning platform where students enroll in professional formations
+                Najah is the modern learning platform where students enroll in professional formations
                 and learn from experienced instructors.
               </motion.p>
 

@@ -241,16 +241,30 @@ const Navbar = ({ onMenuToggle }) => {
             to="/profile"
             className="flex items-center gap-2 rounded-lg p-1 hover:bg-gray-50 dark:hover:bg-gray-800"
           >
-            <div className="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
-              {user?.avatar ? (
-                <img
-                  src={`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}/${user.avatar.replace(/\\/g, '/')}`}
-                  alt={user.name}
-                  className="w-full h-full object-cover object-top"
-                />
-              ) : (
-                <FaUser className="h-4 w-4" />
-              )}
+            <div className="w-10 h-10 rounded-full flex-shrink-0">
+              {(() => {
+                const avatarUrl = user?.avatar
+                  ? (user.avatar.startsWith('http') || user.avatar.startsWith('data:') ? user.avatar : `https://back-njah.vercel.app/${user.avatar.replace(/^\//, '')}`)
+                  : null;
+                const initials = user?.name
+                  ? user.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
+                  : 'U';
+                return (
+                  <div className="relative w-full h-full">
+                    {avatarUrl && (
+                      <img
+                        src={avatarUrl}
+                        alt={user.name}
+                        className="absolute inset-0 w-full h-full rounded-full object-cover object-top"
+                        onError={(e) => { e.target.remove(); }}
+                      />
+                    )}
+                    <div className="w-full h-full rounded-full bg-gradient-to-br from-[#FFB900] to-[#0084D1] flex items-center justify-center text-white font-bold text-sm">
+                      {initials}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
             <div className="hidden text-left md:block">
               <p className="text-xs font-semibold text-gray-700 dark:text-gray-300">

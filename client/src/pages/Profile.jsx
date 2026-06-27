@@ -77,7 +77,7 @@ const Profile = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef(null);
 
-  const SERVER_ORIGIN = (import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '');
+  const SERVER_ORIGIN = (import.meta.env.VITE_API_URL || 'https://back-njah.vercel.app').replace('/api', '');
 
   const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) return '';
@@ -313,18 +313,25 @@ const Profile = () => {
         <div className="self-start rounded-2xl border border-gray-150 bg-white p-6 shadow-sm transition-shadow hover:shadow-md dark:border-gray-800 dark:bg-gray-900 space-y-5 text-center">
           {/* Avatar */}
           <div className="flex flex-col items-center gap-3">
-            <div className="w-32 h-32 rounded-full overflow-hidden ring-2 ring-[#0084D1]">
-              {user.avatar ? (
-                <img
-                  src={getAvatarUrl(user.avatar)}
-                  alt={user.name}
-                  className="w-full h-full object-cover object-top"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FFB900] to-[#0084D1] text-3xl font-bold text-white">
-                  {initials}
-                </div>
-              )}
+            <div className="w-32 h-32 rounded-full overflow-hidden ring-2 ring-[#0084D1] relative">
+              {(() => {
+                const avatarUrl = getAvatarUrl(user?.avatar);
+                return (
+                  <>
+                    {avatarUrl && (
+                      <img
+                        src={avatarUrl}
+                        alt={user.name}
+                        className="absolute inset-0 w-full h-full object-cover object-top"
+                        onError={(e) => { e.target.remove(); }}
+                      />
+                    )}
+                    <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FFB900] to-[#0084D1] text-3xl font-bold text-white">
+                      {initials}
+                    </div>
+                  </>
+                );
+              })()}
             </div>
             <input
               ref={fileInputRef}

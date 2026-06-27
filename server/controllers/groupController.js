@@ -44,7 +44,7 @@ exports.createGroup = async (req, res) => {
       specialty,
       maxMembers,
       instructor: req.user._id,
-      image: req.file ? `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}` : ''
+      image: req.file ? req.file.path : ''
     });
     await group.save();
     const populated = await Group.findById(group._id)
@@ -65,7 +65,7 @@ exports.updateGroup = async (req, res) => {
     }
     const updates = { ...req.body };
     if (req.file) {
-      updates.image = `data:${req.file.mimetype};base64,${req.file.buffer.toString('base64')}`;
+      updates.image = req.file.path;
     }
     const updated = await Group.findByIdAndUpdate(req.params.id, updates, { new: true })
       .populate('instructor', 'name email avatar department')
