@@ -67,6 +67,9 @@ exports.register = async (req, res) => {
       console.error('[authController] Failed to send verification email:', emailError);
     }
 
+    const verifyLink = `${process.env.CLIENT_URL}/verify/${verificationToken}`;
+    console.log('[authController] Verification link:', verifyLink);
+
     res.status(201).json({
       message: 'Confirmation email sent to your Gmail',
       user: {
@@ -255,6 +258,10 @@ exports.resetPassword = async (req, res) => {
     user.password = await bcrypt.hash(password, salt);
     user.resetPasswordToken = null;
     user.resetPasswordExpires = null;
+    if (!user.isVerified) {
+      user.isVerified = true;
+      user.verificationToken = null;
+    }
     await user.save();
 
     res.json({ message: 'Password reset successful. You can now log in.' });

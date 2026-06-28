@@ -1,14 +1,19 @@
 const express = require('express');
 const path = require('path');
 const compression = require('compression');
+<<<<<<< HEAD
 const mongoose = require('mongoose');
 const dns = require('dns');
 dns.setServers(['192.168.1.1', '192.168.31.1']);
+=======
+const connectDB = require('./config/db');
+>>>>>>> 3b8fd4d2801fb52ce7895f3e7f37f5433fa02e32
 require('dotenv').config();
 
 const app = express();
 app.use(compression());
 
+<<<<<<< HEAD
 // MongoDB — attempt connection, don't block startup
 mongoose.set('bufferCommands', false);
 mongoose.connect(process.env.MONGO_URI, { serverSelectionTimeoutMS: 3000 })
@@ -32,11 +37,19 @@ app.use((req, res, next) => {
   } else if (!origin) {
     res.header('Access-Control-Allow-Origin', '*');
   }
+=======
+// CORS
+const allowedOrigin = process.env.CLIENT_URL;
+app.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', allowedOrigin);
+>>>>>>> 3b8fd4d2801fb52ce7895f3e7f37f5433fa02e32
   res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
   res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization');
   if (req.method === 'OPTIONS') return res.sendStatus(200);
   next();
 });
+
+connectDB().catch(err => console.error('Failed to connect to DB:', err.message));
 
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -110,7 +123,7 @@ app.use((err, req, res, next) => {
 });
 
 if (process.env.NODE_ENV !== 'production') {
-  const PORT = process.env.PORT || 5000;
+  const PORT = process.env.PORT;
   app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 

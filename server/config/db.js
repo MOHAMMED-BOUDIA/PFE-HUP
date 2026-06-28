@@ -1,3 +1,5 @@
+const mongoose = require('mongoose');
+
 let cached = global.mongoose;
 if (!cached) {
   cached = global.mongoose = { conn: null, promise: null };
@@ -6,13 +8,20 @@ if (!cached) {
 const connectDB = async () => {
   if (cached.conn) return cached.conn;
   if (!cached.promise) {
-    const mongoose = require('mongoose');
     cached.promise = mongoose.connect(process.env.MONGO_URI, {
       bufferCommands: false,
       serverSelectionTimeoutMS: 5000,
     });
   }
-  cached.conn = await cached.promise;
+  try {
+    cached.conn = await cached.promise;
+    console.log('MongoDB connected successfully');
+  } catch (error) {
+    console.error('MongoDB connection error:', error.message);
+    console.error('Full error:', error);
+    cached.promise = null;
+    throw error;
+  }
   return cached.conn;
 };
 
