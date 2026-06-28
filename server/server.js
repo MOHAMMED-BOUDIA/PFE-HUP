@@ -1,6 +1,5 @@
 const express = require('express');
 const path = require('path');
-const mongoose = require('mongoose');
 const compression = require('compression');
 require('dotenv').config();
 
@@ -18,48 +17,6 @@ app.use((req, res, next) => {
 
 app.use(express.json());
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
-
-// MongoDB connection (cached for serverless)
-let cached = global.mongoose;
-if (!cached) cached = global.mongoose = { conn: null, promise: null };
-
-const connectDB = async () => {
-  if (cached.conn) return cached.conn;
-  if (!cached.promise) {
-    cached.promise = mongoose.connect(process.env.MONGO_URI);
-  }
-  cached.conn = await cached.promise;
-  return cached.conn;
-};
-
-app.use(async (req, res, next) => {
-  try {
-    await connectDB();
-    next();
-  } catch (err) {
-    res.status(500).json({ message: 'DB connection failed', error: err.message });
-  }
-});
-
-let seeded = false;
-
-app.use(async (req, res, next) => {
-  try {
-    if (!seeded && process.env.NODE_ENV === 'production') {
-      seeded = true;
-      const Department = require('./models/Department');
-      const count = await Department.countDocuments();
-      if (count === 0) {
-        const defaults = ['IT', 'Web Development', 'Mobile Development', 'Data Science', 'Cybersecurity', 'Network & Systems', 'Software Engineering'];
-        await Department.insertMany(defaults.map(name => ({ name })));
-      }
-    }
-    next();
-  } catch (err) {
-    console.error('Seed error:', err);
-    next();
-  }
-});
 
 app.get('/', (req, res) => {
   res.json({ status: 'NAJAH API running', cors: 'enabled' });
