@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { toast } from 'react-toastify';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://back-njah.vercel.app';
+const API_BASE_URL = import.meta.env.VITE_API_URL ;
 
 const axiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -13,6 +13,9 @@ axiosInstance.interceptors.request.use(
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
+    }
+    if (config.url && !config.url.startsWith('http')) {
+      config.url = `/api${config.url}`;
     }
     return config;
   },
