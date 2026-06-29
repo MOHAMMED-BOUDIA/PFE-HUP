@@ -58,16 +58,12 @@ exports.register = async (req, res) => {
 
     await user.save();
 
-    try {
+    process.nextTick(() => {
       const { sendVerificationEmail } = require('../utils/sendEmail');
-      await sendVerificationEmail(email, verificationToken);
-      console.log('[authController] Verification email sent successfully');
-    } catch (emailError) {
-      console.error('[authController] Failed to send verification email:', emailError);
-    }
-
-    const verifyLink = `${process.env.CLIENT_URL}/verify/${verificationToken}`;
-    console.log('[authController] Verification link:', verifyLink);
+      sendVerificationEmail(email, verificationToken).catch(err =>
+        console.error('[authController] Failed to send verification email:', err)
+      );
+    });
 
     res.status(201).json({
       message: 'Confirmation email sent to your Gmail',
@@ -225,13 +221,12 @@ exports.forgotPassword = async (req, res) => {
     user.resetPasswordExpires = Date.now() + 3600000; // 1 hour
     await user.save();
 
-    try {
+    process.nextTick(() => {
       const { sendPasswordResetEmail } = require('../utils/sendEmail');
-      await sendPasswordResetEmail(email, resetToken);
-      console.log('[authController] Password reset email sent successfully');
-    } catch (emailError) {
-      console.error('[authController] Failed to send password reset email:', emailError);
-    }
+      sendPasswordResetEmail(email, resetToken).catch(err =>
+        console.error('[authController] Failed to send password reset email:', err)
+      );
+    });
 
     res.json({ message: 'Reset link sent to your Gmail' });
   } catch (error) {
