@@ -8,6 +8,22 @@ require('dotenv').config();
 const app = express();
 
 app.set('trust proxy', true);
+
+const allowedOrigins = (process.env.CLIENT_URL || '').split(',').map(s => s.trim()).filter(Boolean);
+app.use((req, res, next) => {
+  const origin = req.headers.origin;
+  res.setHeader('Access-Control-Allow-Methods', 'GET, POST, PUT, PATCH, DELETE, OPTIONS');
+  res.setHeader('Access-Control-Allow-Headers', 'Content-Type, Authorization');
+  res.setHeader('Access-Control-Max-Age', '86400');
+  if (origin && (allowedOrigins.length === 0 || allowedOrigins.includes(origin))) {
+    res.setHeader('Access-Control-Allow-Origin', origin);
+    res.setHeader('Vary', 'Origin');
+    res.setHeader('Access-Control-Allow-Credentials', 'true');
+  }
+  if (req.method === 'OPTIONS') return res.status(204).end();
+  next();
+});
+
 app.use(compression({ level: 6, threshold: 1024 }));
 
 // Middleware: reject DB-dependent routes fast when DB is down
@@ -17,18 +33,6 @@ const dbRequired = (req, res, next) => {
   }
   next();
 };
-
-const cors = require('cors');
-const allowedOrigins = (process.env.CLIENT_URL || '').split(',').map(s => s.trim()).filter(Boolean);
-app.use(cors({
-  origin: (origin, callback) => {
-    if (!origin || allowedOrigins.length === 0 || allowedOrigins.includes(origin)) return callback(null, true);
-    callback(null, origin);
-  },
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
 
 connectDB().catch(err => console.error('Failed to connect to DB:', err.message));
 
