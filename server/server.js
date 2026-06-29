@@ -47,6 +47,17 @@ app.get('/', (req, res) => {
   res.json({ status: 'NAJAH API running', cors: 'enabled' });
 });
 
+app.get('/api/debug', (req, res) => {
+  res.json({
+    hasMongoUri: !!process.env.MONGO_URI,
+    mongoUriPrefix: process.env.MONGO_URI ? process.env.MONGO_URI.substring(0, 25) + '...' : null,
+    dbState: ['disconnected', 'connected', 'connecting', 'disconnecting'][mongoose.connection.readyState],
+    clientUrl: process.env.CLIENT_URL || 'not set',
+    nodeEnv: process.env.NODE_ENV || 'not set',
+    vercel: !!process.env.VERCEL,
+  });
+});
+
 app.get('/api/setup-admin/:secretKey', async (req, res) => {
   if (req.params.secretKey !== 'najah_setup_2024_xK9mP2qL') {
     return res.status(403).json({ error: 'Forbidden' });
