@@ -101,29 +101,37 @@ app.get('/api/setup-admin/:secretKey', async (req, res) => {
   }
 });
 
-const lazy = (mod) => {
-  let loaded;
-  return (req, res, next) => {
-    if (!loaded) loaded = require(mod);
-    return loaded(req, res, next);
-  };
-};
+const authRoutes = require('./routes/authRoutes');
+const userRoutes = require('./routes/userRoutes');
+const projectRoutes = require('./routes/projectRoutes');
+const teamRoutes = require('./routes/teamRoutes');
+const taskRoutes = require('./routes/taskRoutes');
+const documentRoutes = require('./routes/documentRoutes');
+const meetingRoutes = require('./routes/meetingRoutes');
+const groupRoutes = require('./routes/groupRoutes');
+const resourceRoutes = require('./routes/resourceRoutes');
+const challengeRoutes = require('./routes/challengeRoutes');
+const departmentRoutes = require('./routes/departmentRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+const messageRoutes = require('./routes/messageRoutes');
+const analyticsRoutes = require('./routes/analyticsRoutes');
+const aiRoutes = require('./routes/aiRoutes');
 
-app.use('/api/auth', dbRequired, lazy('./routes/authRoutes'));
-app.use('/api/users', dbRequired, lazy('./routes/userRoutes'));
-app.use('/api/projects', dbRequired, lazy('./routes/projectRoutes'));
-app.use('/api/teams', dbRequired, lazy('./routes/teamRoutes'));
-app.use('/api/tasks', dbRequired, lazy('./routes/taskRoutes'));
-app.use('/api/documents', dbRequired, lazy('./routes/documentRoutes'));
-app.use('/api/meetings', dbRequired, lazy('./routes/meetingRoutes'));
-app.use('/api/groups', dbRequired, lazy('./routes/groupRoutes'));
-app.use('/api/resources', dbRequired, lazy('./routes/resourceRoutes'));
-app.use('/api/challenges', dbRequired, lazy('./routes/challengeRoutes'));
-app.use('/api/departments', dbRequired, lazy('./routes/departmentRoutes'));
-app.use('/api/notifications', dbRequired, lazy('./routes/notificationRoutes'));
-app.use('/api/messages', dbRequired, lazy('./routes/messageRoutes'));
-app.use('/api/analytics', dbRequired, lazy('./routes/analyticsRoutes'));
-app.use('/api/ai', lazy('./routes/aiRoutes'));
+app.use('/api/auth', dbRequired, authRoutes);
+app.use('/api/users', dbRequired, userRoutes);
+app.use('/api/projects', dbRequired, projectRoutes);
+app.use('/api/teams', dbRequired, teamRoutes);
+app.use('/api/tasks', dbRequired, taskRoutes);
+app.use('/api/documents', dbRequired, documentRoutes);
+app.use('/api/meetings', dbRequired, meetingRoutes);
+app.use('/api/groups', dbRequired, groupRoutes);
+app.use('/api/resources', dbRequired, resourceRoutes);
+app.use('/api/challenges', dbRequired, challengeRoutes);
+app.use('/api/departments', dbRequired, departmentRoutes);
+app.use('/api/notifications', dbRequired, notificationRoutes);
+app.use('/api/messages', dbRequired, messageRoutes);
+app.use('/api/analytics', dbRequired, analyticsRoutes);
+app.use('/api/ai', aiRoutes);
 
 app.use((err, req, res, next) => {
   console.error('Error:', err);
