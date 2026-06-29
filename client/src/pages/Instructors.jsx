@@ -95,7 +95,7 @@ const Instructors = () => {
                   {inst.avatar ? (
                     <div className="h-16 w-16 shrink-0 overflow-hidden rounded-2xl shadow-md">
                       <img
-                        src={`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}/${inst.avatar.replace(/\\/g, '/')}`}
+                        src={`${(import.meta.env.VITE_API_URL ).replace('/api', '')}/${inst.avatar.replace(/\\/g, '/')}`}
                         alt={inst.name}
                         className="h-full w-full object-cover object-top"
                       />

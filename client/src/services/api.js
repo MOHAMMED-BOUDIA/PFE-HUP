@@ -3,7 +3,7 @@
  * Uses Vite's environment variable `import.meta.env.VITE_API_URL`
  * falling back to '/api' if not defined or if using the proxy.
  */
-const API_URL = import.meta.env.VITE_API_URL || '/api';
+const API_URL = import.meta.env.VITE_API_URL ;
 
 export const apiRequest = async (endpoint, options = {}) => {
   const { headers, ...restOptions } = options;

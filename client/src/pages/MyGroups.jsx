@@ -277,7 +277,7 @@ const MyGroups = () => {
                     <div className="h-14 w-14 overflow-hidden rounded-xl flex-shrink-0">
                       <img src={(() => {
                         if (group.image.startsWith('http') || group.image.startsWith('data:')) return group.image;
-                        const origin = (import.meta.env.VITE_API_URL || 'https://back-njah.vercel.app/api').replace('/api', '');
+                        const origin = (import.meta.env.VITE_API_URL).replace('/api', '');
                         return `${origin}${group.image.startsWith('/') ? '' : '/'}${group.image.replace(/\\/g, '/')}`;
                       })()} alt={group.name} className="h-full w-full object-cover"
                         onError={(e) => { e.target.style.display = 'none'; }} />

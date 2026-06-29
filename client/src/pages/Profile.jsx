@@ -77,7 +77,7 @@ const Profile = () => {
   const [uploadingAvatar, setUploadingAvatar] = useState(false);
   const fileInputRef = useRef(null);
 
-  const SERVER_ORIGIN = (import.meta.env.VITE_API_URL || 'https://back-njah.vercel.app').replace('/api', '');
+  const SERVER_ORIGIN = (import.meta.env.VITE_API_URL).replace('/api', '');
 
   const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) return null;

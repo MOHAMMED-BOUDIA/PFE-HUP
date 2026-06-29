@@ -236,7 +236,7 @@ const Dashboard = () => {
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 shrink-0 overflow-hidden rounded-full">
                     {req.student.avatar ? (
-                      <img src={`${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}/${req.student.avatar.replace(/\\/g, '/')}`} alt={req.student.name} className="h-full w-full object-cover object-top" />
+                      <img src={`${(import.meta.env.VITE_API_URL ).replace('/api', '')}/${req.student.avatar.replace(/\\/g, '/')}`} alt={req.student.name} className="h-full w-full object-cover object-top" />
                     ) : (
                       <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FFB900] to-[#0084D1] text-xs font-bold text-white">
                         {req.student.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'S'}

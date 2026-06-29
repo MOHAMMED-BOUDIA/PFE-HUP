@@ -23,7 +23,7 @@ const Chat = () => {
 
   const getAvatarUrl = (p) => {
     if (!p) return '';
-    return `${(import.meta.env.VITE_API_URL || 'http://localhost:5000/api').replace('/api', '')}/${p.replace(/\\/g, '/')}`;
+    return `${(import.meta.env.VITE_API_URL ).replace('/api', '')}/${p.replace(/\\/g, '/')}`;
   };
 
   useEffect(() => {

@@ -27,14 +27,18 @@ app.use((req, res, next) => {
 app.use(compression({ level: 6, threshold: 1024 }));
 
 // Middleware: reject DB-dependent routes fast when DB is down
-const dbRequired = (req, res, next) => {
-  if (mongoose.connection.readyState !== 1) {
-    return res.status(503).json({ message: 'Database unavailable. Try again later.' });
+const dbRequired = async (req, res, next) => {
+  if (mongoose.connection.readyState === 1) return next();
+  try {
+    await connectDB();
+    next();
+  } catch (err) {
+    console.error('[dbRequired] DB connection failed:', err.message);
+    res.status(503).json({ message: 'Database unavailable', error: err.message });
   }
-  next();
 };
 
-connectDB().catch(err => console.error('Failed to connect to DB:', err.message));
+connectDB().catch(err => console.error('[server] Failed to connect to DB:', err.message));
 
 app.use(express.json({ limit: '1mb' }));
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
