@@ -68,27 +68,27 @@ function FeaturesBento() {
   ];
 
   return (
-    <section id="formations" className="py-24 lg:py-32">
+    <section id="formations" className="py-16 sm:py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           ref={ref}
           initial={{ opacity: 0, y: 20 }}
           animate={sectionInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.4 }}
-          className="text-center max-w-2xl mx-auto mb-14"
+          className="text-center max-w-2xl mx-auto mb-10 sm:mb-14"
         >
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4 leading-tight">
             <span className="bg-gradient-to-r from-[#FFB900] to-[#0084D1] bg-clip-text text-transparent">
               {t('home.featuresTitle')}
             </span>{' '}
             {t('home.featuresTitleSuffix')}
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 text-lg">
+          <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg">
             {t('home.featuresSubtitle')}
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-[180px] sm:auto-rows-[200px]">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 auto-rows-auto sm:auto-rows-[200px]">
           <BentoCard
             icon={HiOutlineBookOpen}
             title={t('home.featuresFormations')}

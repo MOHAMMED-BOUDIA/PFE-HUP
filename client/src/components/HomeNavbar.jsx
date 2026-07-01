@@ -92,7 +92,7 @@ export default function HomeNavbar() {
             </Link>
           </div>
 
-          {/* Desktop Buttons */}
+          {/* Desktop right side */}
           <div className="hidden md:flex items-center gap-2">
             <LanguageSwitcher />
             <button
@@ -116,32 +116,71 @@ export default function HomeNavbar() {
             </Link>
           </div>
 
-          {/* Mobile Hamburger */}
-          <button
-            className="md:hidden p-2 text-gray-600 dark:text-gray-300 hover:text-[#0084D1] transition-colors"
-            onClick={() => setMobileOpen(!mobileOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileOpen ? <HiX size={24} /> : <HiMenu size={24} />}
-          </button>
+          {/* Mobile right side: lang switcher + dark mode toggle + hamburger */}
+          <div className="flex items-center gap-1 md:hidden">
+            <LanguageSwitcher />
+            <button
+              onClick={() => setDarkMode(!darkMode)}
+              className="p-2 rounded-xl text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800 transition-all"
+              title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+            >
+              {darkMode ? <FaSun className="h-4 w-4 text-amber-500" /> : <FaMoon className="h-4 w-4 text-[#0084D1]" />}
+            </button>
+            <button
+              className="flex h-11 w-11 items-center justify-center text-gray-600 dark:text-gray-300 hover:text-[#0084D1] transition-colors"
+              onClick={() => setMobileOpen(!mobileOpen)}
+              aria-label="Toggle menu"
+            >
+              {mobileOpen ? <HiX size={24} /> : <HiMenu size={24} />}
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Mobile Menu */}
+      {/* Mobile Drawer Overlay */}
       <AnimatePresence>
         {mobileOpen && (
           <motion.div
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: 'auto' }}
-            exit={{ opacity: 0, height: 0 }}
-            className="md:hidden bg-white/95 dark:bg-gray-950/95 backdrop-blur-xl border-b border-gray-200 dark:border-gray-800 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setMobileOpen(false)}
+            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm md:hidden"
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Slide-in Drawer */}
+      <AnimatePresence>
+        {mobileOpen && (
+          <motion.div
+            initial={{ opacity: 0, x: '100%' }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: '100%' }}
+            transition={{ type: 'spring', damping: 25, stiffness: 200 }}
+            className="fixed top-0 right-0 z-50 h-full w-[280px] bg-white dark:bg-gray-950 shadow-2xl md:hidden overflow-y-auto"
           >
-            <div className="px-4 py-4 space-y-3">
+            <div className="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-800">
+              <Link to="/" onClick={() => setMobileOpen(false)} className="flex items-center gap-2">
+                <img src="/img/najah-circle-removebg-preview.png" alt="najah" className="w-8 h-8 object-contain" />
+                <span className="text-lg font-bold bg-gradient-to-r from-[#FFB900] to-[#0084D1] bg-clip-text text-transparent">
+                  Najah
+                </span>
+              </Link>
+              <button
+                onClick={() => setMobileOpen(false)}
+                className="flex h-11 w-11 items-center justify-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                aria-label="Close menu"
+              >
+                <HiX size={24} />
+              </button>
+            </div>
+            <div className="p-4 space-y-2">
               {scrollLinks.map((link) => (
                 <button
                   key={link.labelKey}
                   onClick={() => handleScroll(link.id)}
-                  className="block w-full text-start px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#0084D1] dark:hover:text-[#0084D1] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all"
+                  className="block w-full text-start px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#0084D1] dark:hover:text-[#0084D1] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all min-h-[44px]"
                 >
                   {t(link.labelKey)}
                 </button>
@@ -149,31 +188,24 @@ export default function HomeNavbar() {
               <Link
                 to="/contact"
                 onClick={() => setMobileOpen(false)}
-                className="block text-start px-3 py-2 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#0084D1] dark:hover:text-[#0084D1] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-lg transition-all"
+                className="block w-full text-start px-4 py-3 text-sm font-medium text-gray-600 dark:text-gray-300 hover:text-[#0084D1] dark:hover:text-[#0084D1] hover:bg-gray-50 dark:hover:bg-gray-800 rounded-xl transition-all min-h-[44px]"
               >
                 {t('nav.contact')}
               </Link>
-              <div className="flex justify-center">
-                <LanguageSwitcher />
-              </div>
-              <button
-                onClick={() => { setDarkMode(!darkMode); setMobileOpen(false); }}
-                className="flex items-center justify-center gap-2 w-full px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
-              >
-                {darkMode ? <><FaSun className="text-amber-500" /> Light Mode</> : <><FaMoon className="text-[#0084D1]" /> Dark Mode</>}
-              </button>
-              <hr className="border-gray-200 dark:border-gray-700" />
+            </div>
+
+            <div className="mt-auto p-4 border-t border-gray-200 dark:border-gray-800 space-y-3">
               <Link
                 to="/login"
                 onClick={() => setMobileOpen(false)}
-                className="block w-full text-center px-4 py-2.5 text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all"
+                className="block w-full text-center px-4 py-3 text-sm font-semibold text-gray-700 dark:text-gray-200 border border-gray-300 dark:border-gray-600 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800 transition-all min-h-[44px] flex items-center justify-center"
               >
                 {t('nav.login')}
               </Link>
               <Link
                 to="/register"
                 onClick={() => setMobileOpen(false)}
-                className="block w-full text-center px-4 py-2.5 text-sm font-semibold text-white bg-[#FFB900] rounded-xl hover:bg-[#0084D1] transition-all"
+                className="block w-full text-center px-4 py-3 text-sm font-semibold text-white bg-[#FFB900] rounded-xl hover:bg-[#0084D1] transition-all min-h-[44px] flex items-center justify-center"
               >
                 {t('nav.getStarted')}
               </Link>

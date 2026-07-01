@@ -26,7 +26,7 @@ const CTAButton = memo(function CTAButton({ children, to, primary }) {
       <a
         href={`/${to}`}
         onClick={handleClick}
-        className={`relative inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm transition-all duration-300 ${
+        className={`relative inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm transition-all duration-300 w-full md:w-auto min-h-[44px] ${
           primary
             ? 'bg-[#FFB900] text-white shadow-xl shadow-[#FFB900]/25 hover:bg-[#0084D1] hover:shadow-[#0084D1]/40 hover:scale-[1.03]'
             : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -40,7 +40,7 @@ const CTAButton = memo(function CTAButton({ children, to, primary }) {
   return (
     <Link
       to={to}
-      className={`relative inline-flex items-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm transition-all duration-300 ${
+      className={`relative inline-flex items-center justify-center gap-2 px-7 py-3.5 rounded-full font-semibold text-sm transition-all duration-300 w-full md:w-auto min-h-[44px] ${
         primary
           ? 'bg-[#FFB900] text-white shadow-xl shadow-[#FFB900]/25 hover:bg-[#0084D1] hover:shadow-[#0084D1]/40 hover:scale-[1.03]'
           : 'border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
@@ -168,9 +168,9 @@ function HeroSection() {
       <div className="absolute bottom-1/4 -right-32 w-96 h-96 bg-[#0084D1]/10 rounded-full blur-[120px]" />
 
       <motion.div style={{ y, opacity }} className="relative w-full">
-        <div className="max-w-7xl mx-auto px-6 lg:px-8 py-20 lg:py-32">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <div className="space-y-7">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-32">
+          <div className="grid lg:grid-cols-2 gap-8 lg:gap-16 items-center">
+            <div className="space-y-6 lg:space-y-7 text-center lg:text-left">
               <motion.div
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -181,7 +181,7 @@ function HeroSection() {
                 {t('home.heroBadge')}
               </motion.div>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-[1.1]">
+              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight sm:leading-[1.1]">
                 <motion.span
                   initial={{ opacity: 0, y: 24 }}
                   animate={{ opacity: 1, y: 0 }}
@@ -206,7 +206,7 @@ function HeroSection() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.4 }}
-                className="text-lg text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed"
+                className="text-base sm:text-lg text-gray-500 dark:text-gray-400 max-w-xl leading-relaxed"
               >
                 {t('home.heroSubtitle')}
               </motion.p>
@@ -215,7 +215,7 @@ function HeroSection() {
                 initial={{ opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.5, duration: 0.4 }}
-                className="flex flex-wrap gap-4"
+                className="flex flex-col sm:flex-row gap-3 sm:gap-4"
               >
                 <CTAButton to="/register" primary>{t('home.startLearning')}</CTAButton>
                 <CTAButton to="#formations">{t('home.browseFormations')}</CTAButton>
@@ -225,9 +225,9 @@ function HeroSection() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 0.7, duration: 0.4 }}
-                className="flex items-center gap-4 pt-2"
+                className="flex flex-col sm:flex-row items-center gap-4 pt-2"
               >
-                <div className="flex -space-x-2">
+                <div className="flex -space-x-2 justify-center">
                   {avatars.map((url) => (
                     <img
                       key={url}

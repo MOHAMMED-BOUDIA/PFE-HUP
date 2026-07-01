@@ -17,21 +17,21 @@ export default function Contact() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-x-hidden">
       <HomeNavbar />
-      <section className="pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-16">
-            <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-[1.6] py-4 mb-6">
+      <section className="pt-28 sm:pt-32 pb-16 sm:pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-10 sm:mb-16">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight sm:leading-[1.6] py-4 mb-6">
               {t('static.contact.title')}{' '}
               <span className="bg-gradient-to-r from-[#FFB900] to-[#0084D1] bg-clip-text text-transparent">
                 {t('static.contact.titleAccent')}
               </span>
             </h1>
-            <p className="text-lg text-gray-500 dark:text-gray-400">
+            <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400">
               {t('static.contact.subtitle')}
             </p>
           </div>
 
-          <div className="grid md:grid-cols-2 gap-12 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 sm:gap-12 max-w-5xl mx-auto">
             {/* Form */}
             <div className="p-8 rounded-3xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50">
               <form onSubmit={handleSubmit} className="space-y-5">

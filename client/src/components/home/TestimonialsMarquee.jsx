@@ -28,7 +28,7 @@ function TestimonialCard({ quote, name, role, avatar, i }) {
 
   return (
     <div
-      className={`flex-shrink-0 w-[340px] rounded-2xl border bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-6 shadow-lg hover:shadow-xl transition-shadow ${borders[i % borders.length]}`}
+      className={`flex-shrink-0 w-[280px] sm:w-[340px] rounded-2xl border bg-white/80 dark:bg-gray-900/80 backdrop-blur-sm p-4 sm:p-6 shadow-lg transition-shadow ${borders[i % borders.length]}`}
     >
       <Stars />
       <p className="text-sm text-gray-600 dark:text-gray-300 leading-relaxed mb-5">&ldquo;{quote}&rdquo;</p>
@@ -57,7 +57,7 @@ function MarqueeRow({ items, reverse }) {
       <div
         className="flex gap-5"
         style={{
-          animation: `marquee-${reverse ? 'rev' : 'fwd'} 40s linear infinite`,
+          animation: `marquee-${reverse ? 'rev' : 'fwd'} 10s linear infinite`,
           animationPlayState: paused ? 'paused' : 'running',
         }}
       >
@@ -85,15 +85,15 @@ const TestimonialsMarquee = memo(function TestimonialsMarquee() {
   const doubledRev = [...testimonials, ...testimonials].reverse();
 
   return (
-    <section className="py-24 lg:py-32 overflow-hidden bg-gradient-to-br from-[#FFB900]/5 via-[#0084D1]/5 to-[#FFB900]/5">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+    <section className="py-16 sm:py-24 lg:py-32 overflow-hidden bg-gradient-to-br from-[#FFB900]/5 via-[#0084D1]/5 to-[#FFB900]/5">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-8 sm:mb-12">
         <div className="text-center max-w-2xl mx-auto">
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4 leading-tight">
             <span className="bg-gradient-to-r from-[#FFB900] to-[#0084D1] bg-clip-text text-transparent">
               {t('home.testimonialsTitle')}
             </span>
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 text-lg">
+          <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg">
             {t('home.testimonialsSubtitle')}
           </p>
         </div>

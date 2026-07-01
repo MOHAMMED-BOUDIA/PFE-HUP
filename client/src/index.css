@@ -17,7 +17,21 @@
 }
 
 ::-webkit-scrollbar { display: none; }
-html { -ms-overflow-style: none; scrollbar-width: none; }
+html {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+  overflow-x: hidden;
+}
+body {
+  overflow-x: hidden;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Remove hover effects on touch devices */
+@media (hover: none) and (pointer: coarse) {
+  .hover\:shadow-xl:hover { box-shadow: none !important; }
+  .hover\:scale-\[1\.02\]:hover, .hover\:scale-105:hover { transform: none !important; }
+}
 
 @keyframes fadeInScale {
   from { opacity: 0; transform: scale(0.92); }

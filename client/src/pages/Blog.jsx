@@ -39,27 +39,27 @@ export default function Blog() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-x-hidden">
       <HomeNavbar />
-      <section className="pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-6">
+      <section className="pt-28 sm:pt-32 pb-16 sm:pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-3xl mx-auto mb-6">
-            <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-[1.6] py-4 mb-4">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight sm:leading-[1.6] py-4 mb-4">
               {t('static.blog.title')}{' '}
               <span className="bg-gradient-to-r from-[#FFB900] to-[#0084D1] bg-clip-text text-transparent">
                 {t('static.blog.titleAccent')}
               </span>
             </h1>
-            <p className="text-lg text-gray-500 dark:text-gray-400 mb-8">
+            <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 mb-8">
               {t('static.blog.subtitle')}
             </p>
           </div>
 
           {/* Category Pills */}
-          <div className="flex flex-wrap justify-center gap-3 mb-14">
+          <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-10 sm:mb-14">
             {categoryKeys.map((cat) => (
               <button
                 key={cat}
                 onClick={() => setActiveCategory(cat)}
-                className={`px-4 py-2 rounded-full text-sm font-medium transition-all ${
+                className={`px-4 py-2 min-h-[44px] rounded-full text-sm font-medium transition-all ${
                   activeCategory === cat
                     ? 'bg-gradient-to-r from-[#FFB900] to-[#0084D1] text-white shadow-md'
                     : 'bg-gray-100 dark:bg-gray-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700'
@@ -71,7 +71,7 @@ export default function Blog() {
           </div>
 
           {/* Blog Grid */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {filteredPosts.map((post) => {
               const prefix = `static.blog.${post.key}`;
               const title = t(`${prefix}.title`);

@@ -49,8 +49,8 @@ export default function BlogDetail() {
   return (
     <div className="min-h-screen bg-white dark:bg-gray-950 text-gray-900 dark:text-white overflow-x-hidden">
       <HomeNavbar />
-      <section className="pt-32 pb-20">
-        <div className="max-w-3xl mx-auto px-6">
+      <section className="pt-28 sm:pt-32 pb-16 sm:pb-20">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6">
           <Link to="/blog" className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-[#0084D1] transition-colors mb-8">
             <FiArrowLeft className="w-4 h-4" />
             {t('static.blog.backToBlog')}
@@ -60,7 +60,7 @@ export default function BlogDetail() {
             {category}
           </div>
 
-          <h1 className="text-4xl sm:text-5xl font-bold tracking-tight mb-6 leading-tight">{title}</h1>
+          <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-6 leading-tight">{title}</h1>
 
           <div className="flex items-center gap-6 text-sm text-gray-400 mb-10 pb-8 border-b border-gray-200 dark:border-gray-800">
             <span className="flex items-center gap-1.5"><FiUser className="w-4 h-4" />{author}</span>

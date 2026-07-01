@@ -45,21 +45,21 @@ function HowItWorksTimeline() {
   ];
 
   return (
-    <section id="how-it-works" className="py-24 lg:py-32">
+    <section id="how-it-works" className="py-16 sm:py-24 lg:py-32">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : {}}
           transition={{ duration: 0.35 }}
-          className="text-center max-w-2xl mx-auto mb-16"
+          className="text-center max-w-2xl mx-auto mb-10 sm:mb-16"
         >
-          <h2 className="text-4xl sm:text-5xl font-bold tracking-tight mb-4">
+          <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mb-4 leading-tight">
             {t('home.stepsTitle')}{' '}
             <span className="bg-gradient-to-r from-[#FFB900] to-[#0084D1] bg-clip-text text-transparent">
               {t('home.stepsTitleAccent')}
             </span>
           </h2>
-          <p className="text-gray-500 dark:text-gray-400 text-lg">
+          <p className="text-gray-500 dark:text-gray-400 text-base sm:text-lg">
             {t('home.stepsSubtitle')}
           </p>
         </motion.div>

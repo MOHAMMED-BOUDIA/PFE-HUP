@@ -95,8 +95,8 @@ const Sidebar = ({ isOpen, onClose, collapsed, onToggleCollapse }) => {
     menuItems = adminLinks;
   }
 
-  const activeLinkClass = 'flex items-center gap-3 rounded-xl bg-amber-400 px-4 py-3 text-sm font-semibold text-sky-600 transition-all dark:bg-amber-500/20 dark:text-sky-400';
-  const normalLinkClass = 'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200';
+  const activeLinkClass = 'flex items-center gap-3 rounded-xl bg-amber-400 px-4 py-3 text-sm font-semibold text-sky-600 transition-all dark:bg-amber-500/20 dark:text-sky-400 min-h-[44px]';
+  const normalLinkClass = 'flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-medium text-gray-500 hover:bg-gray-50 hover:text-gray-900 transition-all dark:text-gray-400 dark:hover:bg-gray-800 dark:hover:text-gray-200 min-h-[44px]';
 
   return (
     <>

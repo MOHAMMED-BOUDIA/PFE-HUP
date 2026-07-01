@@ -82,16 +82,16 @@ export default function Help() {
         </div>
       )}
 
-      <section className="pt-32 pb-20">
-        <div className="max-w-7xl mx-auto px-6">
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <h1 className="text-5xl sm:text-6xl font-bold tracking-tight leading-[1.6] py-4 mb-4">
+      <section className="pt-28 sm:pt-32 pb-16 sm:pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6">
+          <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12">
+            <h1 className="text-3xl sm:text-5xl lg:text-6xl font-bold tracking-tight leading-tight sm:leading-[1.6] py-4 mb-4">
               {t('static.help.title')}{' '}
               <span className="bg-gradient-to-r from-[#FFB900] to-[#0084D1] bg-clip-text text-transparent">
                 {t('static.help.titleAccent')}
               </span>
             </h1>
-            <p className="text-lg text-gray-500 dark:text-gray-400 mb-8">
+            <p className="text-base sm:text-lg text-gray-500 dark:text-gray-400 mb-8">
               {t('static.help.subtitle')}
             </p>
 
@@ -109,7 +109,7 @@ export default function Help() {
           </div>
 
           {/* Category Cards */}
-          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-12">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-10 sm:mb-12">
             <button
               onClick={() => setCategory('All')}
               className={`p-5 rounded-2xl border text-left transition-all ${
@@ -179,17 +179,17 @@ export default function Help() {
           </div>
 
           {/* Contact Support */}
-          <div className="max-w-3xl mx-auto p-8 rounded-3xl bg-gradient-to-br from-[#0084D1]/10 to-[#FFB900]/10 border border-[#0084D1]/30 text-center">
-            <h2 className="text-2xl font-bold mb-2">{t('static.help.stillNeedHelp')}</h2>
+          <div className="max-w-3xl mx-auto p-6 sm:p-8 rounded-3xl bg-gradient-to-br from-[#0084D1]/10 to-[#FFB900]/10 border border-[#0084D1]/30 text-center">
+            <h2 className="text-xl sm:text-2xl font-bold mb-2">{t('static.help.stillNeedHelp')}</h2>
             <p className="text-gray-500 dark:text-gray-400 text-sm mb-6">
               {t('static.help.supportDesc')}
             </p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/contact" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl bg-[#FFB900] text-white font-semibold text-sm hover:bg-[#0084D1] transition-all shadow-lg shadow-[#0084D1]/25">
+            <div className="flex flex-col sm:flex-row justify-center gap-3 sm:gap-4">
+              <Link to="/contact" className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-xl bg-[#FFB900] text-white font-semibold text-sm hover:bg-[#0084D1] transition-all shadow-lg shadow-[#0084D1]/25">
                 {t('static.help.contactSupport')}
                 <FiArrowRight className="w-4 h-4" />
               </Link>
-              <a href="mailto:support@najah.com" className="inline-flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
+              <a href="mailto:support@najah.com" className="inline-flex items-center justify-center gap-2 px-6 py-3 min-h-[44px] rounded-xl border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-200 font-medium text-sm hover:bg-gray-50 dark:hover:bg-gray-800 transition-all">
                 <FiMail className="w-4 h-4" />
                 support@najah.com
               </a>

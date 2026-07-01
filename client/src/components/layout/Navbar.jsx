@@ -116,7 +116,7 @@ const Navbar = ({ onMenuToggle }) => {
         <button
           onClick={onMenuToggle}
           type="button"
-          className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 md:hidden"
+          className="flex h-11 w-11 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800 md:hidden"
           aria-label="Toggle sidebar"
         >
           <FaBars className="h-5 w-5" />
@@ -150,7 +150,7 @@ const Navbar = ({ onMenuToggle }) => {
         <button
           onClick={() => setDarkMode(!darkMode)}
           type="button"
-          className="flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+          className="flex h-10 w-10 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
           title={darkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
         >
           {darkMode ? <FaSun className="h-5 w-5 text-amber-500" /> : <FaMoon className="h-5 w-5 text-[#0084D1]" />}

@@ -82,14 +82,14 @@ const AdminDashboard = () => {
         <p className="text-gray-500">{t('admin.systemOverview')}</p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
         <StatCard icon={<FiUsers />} label={t('admin.totalUsers')} value={data.stats.totalUsers} color="bg-[#0084D1]" />
         <StatCard icon={<FiUser />} label={t('admin.students')} value={data.stats.totalStudents} color="bg-green-500" />
         <StatCard icon={<FiUserCheck />} label={t('admin.instructors')} value={data.stats.totalInstructors} color="bg-[#FFB900]" />
         <StatCard icon={<FiLayers />} label={t('admin.totalGroups')} value={data.stats.totalGroups} color="bg-purple-500" />
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 md:gap-6">
         <CompletionCard title={t('admin.projectCompletionRate')} rate={data.stats.completionRate} icon={<FiTarget />} color="#0084D1" />
         <CompletionCard title={t('admin.taskCompletionRate')} rate={data.stats.taskCompletionRate} icon={<FiAward />} color="#FFB900" />
       </div>
@@ -185,39 +185,40 @@ const AdminDashboard = () => {
         <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
           <FiAward className="text-[#FFB900]" /> {t('admin.topInstructors')}
         </h3>
-        <div className="overflow-x-auto">
-          <table className="w-full">
+        <div className="overflow-x-auto -mx-4 md:mx-0">
+          <div className="inline-block min-w-full align-middle px-4 md:px-0">
+          <table className="min-w-full">
             <thead className="bg-gray-50 dark:bg-gray-700">
               <tr>
-                <th className="px-4 py-3 text-left text-sm font-medium">{t('admin.rank')}</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">{t('admin.instructor')}</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">{t('admin.department')}</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">{t('admin.groups')}</th>
-                <th className="px-4 py-3 text-left text-sm font-medium">{t('admin.students')}</th>
+                <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">{t('admin.rank')}</th>
+                <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">{t('admin.instructor')}</th>
+                <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">{t('admin.department')}</th>
+                <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">{t('admin.groups')}</th>
+                <th className="px-4 py-3 text-left text-sm font-medium whitespace-nowrap">{t('admin.students')}</th>
               </tr>
             </thead>
             <tbody className="divide-y">
               {data.topInstructors.map((inst, i) => (
                 <tr key={i} className="hover:bg-gray-50 dark:hover:bg-gray-700">
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 whitespace-nowrap">
                     {i === 0 && <span>🥇</span>}
                     {i === 1 && <span>🥈</span>}
                     {i === 2 && <span>🥉</span>}
                     {i > 2 && <span className="text-gray-500">#{i + 1}</span>}
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 whitespace-nowrap">
                     <div>
-                      <div className="font-medium">{inst.name}</div>
+                      <div className="font-medium text-sm">{inst.name}</div>
                       <div className="text-xs text-gray-500">{inst.email}</div>
                     </div>
                   </td>
-                  <td className="px-4 py-3 text-sm">{inst.department || '-'}</td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 text-sm whitespace-nowrap">{inst.department || '-'}</td>
+                  <td className="px-4 py-3 whitespace-nowrap">
                     <span className="px-2 py-1 bg-blue-100 text-blue-700 rounded-full text-xs font-medium">
                       {inst.groupsCount}
                     </span>
                   </td>
-                  <td className="px-4 py-3">
+                  <td className="px-4 py-3 whitespace-nowrap">
                     <span className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs font-medium">
                       {inst.studentsCount}
                     </span>
@@ -226,6 +227,7 @@ const AdminDashboard = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
     </div>

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { FaPaperPlane, FaSpinner, FaCommentDots } from 'react-icons/fa';
+import { FaPaperPlane, FaSpinner, FaCommentDots, FaArrowLeft, FaUsers } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../context/AuthContext';
 import { useTranslation } from 'react-i18next';
@@ -111,10 +111,21 @@ const Chat = () => {
     );
   }
 
+  const [mobileChatOpen, setMobileChatOpen] = useState(false);
+
+  const openMobileChat = (group) => {
+    setActiveGroup(group);
+    setMobileChatOpen(true);
+  };
+
+  const closeMobileChat = () => {
+    setMobileChatOpen(false);
+  };
+
   return (
     <div className="flex h-[calc(100vh-8rem)] gap-4 p-1">
-      {/* Group list — sidebar */}
-      <div className="hidden w-64 shrink-0 flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 md:flex">
+      {/* Group list — sidebar: always visible on desktop, togglable on mobile */}
+      <div className={`${mobileChatOpen ? 'hidden' : 'flex'} w-full md:w-64 shrink-0 flex-col rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 md:flex`}>
         <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-800">
           <h3 className="text-sm font-bold text-gray-900 dark:text-white">{t('chat.groups')}</h3>
         </div>
@@ -122,7 +133,13 @@ const Chat = () => {
           {groups.map(g => (
             <button
               key={g._id}
-              onClick={() => setActiveGroup(g)}
+              onClick={() => {
+                if (window.innerWidth < 768) {
+                  openMobileChat(g);
+                } else {
+                  setActiveGroup(g);
+                }
+              }}
               className={`w-full border-b border-gray-50 px-4 py-3 text-left transition-colors last:border-0 dark:border-gray-800/50 ${
                  activeGroup?._id === g._id ? 'bg-[#0084D1]/10' : 'hover:bg-gray-50 dark:hover:bg-gray-800/30'
               }`}
@@ -135,13 +152,22 @@ const Chat = () => {
       </div>
 
       {/* Chat area */}
-      {activeGroup ? (
-        <div className="flex flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
+      <div className={`${!activeGroup && 'hidden md:flex'} ${activeGroup && !mobileChatOpen ? 'hidden md:flex' : 'flex'} flex-1 flex-col overflow-hidden rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900 ${mobileChatOpen ? 'fixed inset-0 z-30 rounded-none md:relative md:inset-auto md:z-auto md:rounded-2xl' : ''}`}>
+        {activeGroup ? (
+          <>
           {/* Header */}
-          <div className="flex items-center gap-3 border-b border-gray-100 px-5 py-3 dark:border-gray-800">
+          <div className="flex items-center gap-3 border-b border-gray-100 px-4 md:px-5 py-3 dark:border-gray-800">
+            <button
+              onClick={closeMobileChat}
+              className="flex h-10 w-10 items-center justify-center rounded-xl text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 md:hidden"
+              aria-label="Back to groups"
+            >
+              <FaArrowLeft className="h-4 w-4" />
+            </button>
             <div className="flex-1">
               <h3 className="text-sm font-bold text-gray-900 dark:text-white">{activeGroup.name}</h3>
               <p className="text-xs text-gray-500 dark:text-gray-400">
+                <FaUsers className="inline h-3 w-3 mr-1" />
                 {activeGroup.members?.length || 0} {t('chat.members')}
                 {activeGroup.instructor?.name ? ` • ${activeGroup.instructor.name}` : ''}
               </p>
@@ -216,15 +242,16 @@ const Chat = () => {
               {sending ? <FaSpinner className="h-4 w-4 animate-spin" /> : <FaPaperPlane className="h-4 w-4" />}
             </button>
           </form>
-        </div>
+        </>
       ) : (
         <div className="flex flex-1 items-center justify-center rounded-2xl border border-gray-200 bg-white dark:border-gray-800 dark:bg-gray-900">
           <div className="text-center">
-            <FaCommentDots className="mx-auto h-16 w-16 text-gray-300 dark:text-gray-600" />
-            <p className="mt-3 text-lg font-semibold text-gray-500 dark:text-gray-400">{t('chat.selectGroup')}</p>
+            <FaCommentDots className="mx-auto h-10 w-10 md:h-16 md:w-16 text-gray-300 dark:text-gray-600" />
+            <p className="mt-3 text-sm md:text-lg font-semibold text-gray-500 dark:text-gray-400">{t('chat.selectGroup')}</p>
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };
