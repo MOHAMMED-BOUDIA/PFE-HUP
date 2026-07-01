@@ -110,7 +110,7 @@ const Navbar = ({ onMenuToggle }) => {
   };
 
   return (
-    <header dir="ltr" className="sticky top-0 z-30 flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white px-4 shadow-sm transition-colors duration-200 dark:border-gray-800 dark:bg-gray-900 md:px-6">
+    <header dir="ltr" className="sticky top-0 z-40 flex h-16 w-full items-center justify-between border-b border-gray-200 bg-white/95 backdrop-blur-sm px-4 shadow-sm transition-colors duration-200 dark:border-gray-800 dark:bg-gray-900/95 md:px-6">
       {/* Left side: Hamburger and title */}
       <div className="flex items-center gap-4">
         <button
