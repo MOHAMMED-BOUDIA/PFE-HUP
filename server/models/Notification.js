@@ -1,27 +1,38 @@
 const mongoose = require('mongoose');
 
 const notificationSchema = new mongoose.Schema({
-  message: {
-    type: String,
-    required: true
-  },
-  type: {
-    type: String,
-    enum: ['info', 'warning', 'success', 'error'],
-    default: 'info'
-  },
-  user: {
+  recipient: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
-  read: {
-    type: Boolean,
-    default: false
+  sender: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'User'
+  },
+  type: {
+    type: String,
+    enum: ['meeting', 'task', 'message', 'group'],
+    required: true
+  },
+  title: {
+    type: String,
+    default: ''
+  },
+  message: {
+    type: String,
+    required: true
   },
   link: {
     type: String,
     default: ''
+  },
+  relatedId: {
+    type: mongoose.Schema.Types.ObjectId
+  },
+  isRead: {
+    type: Boolean,
+    default: false
   }
 }, { timestamps: true });
 

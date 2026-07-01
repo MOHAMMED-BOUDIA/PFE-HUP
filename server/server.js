@@ -1,4 +1,5 @@
 const express = require('express');
+const http = require('http');
 const path = require('path');
 const compression = require('compression');
 const mongoose = require('mongoose');
@@ -6,6 +7,9 @@ const connectDB = require('./config/db');
 require('dotenv').config();
 
 const app = express();
+const server = http.createServer(app);
+const { initSocket } = require('./socket');
+initSocket(server);
 
 app.set('trust proxy', true);
 
@@ -140,7 +144,7 @@ app.use((err, req, res, next) => {
 
 if (!process.env.VERCEL && process.env.NODE_ENV !== 'production') {
   const PORT = process.env.PORT;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  server.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 }
 
 module.exports = app;

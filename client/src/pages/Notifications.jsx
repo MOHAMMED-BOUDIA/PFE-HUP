@@ -1,26 +1,18 @@
 import { useState, useEffect } from 'react';
-import { FaBell, FaCheck, FaTrash, FaInfoCircle, FaCheckCircle, FaExclamationTriangle, FaTimesCircle } from 'react-icons/fa';
+import { FaBell, FaCheck, FaTrash, FaCalendarAlt, FaCheckCircle, FaExclamationTriangle, FaTimesCircle } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useTranslation } from 'react-i18next';
-import axiosInstance from '../api/axios';
+import { useNavigate } from 'react-router-dom';
+import { useNotifications } from '../context/NotificationContext';
 import Loader from '../components/common/Loader';
 import EmptyState from '../components/common/EmptyState';
 
 const Notifications = () => {
   const { t } = useTranslation();
-  const [notifications, setNotifications] = useState([]);
+  const navigate = useNavigate();
+  const { notifications, unreadCount, markAsRead, markAllRead, deleteNotification, fetchNotifications } = useNotifications();
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-
-  const fetchNotifications = async () => {
-    try {
-      const response = await axiosInstance.get('/notifications');
-      setNotifications(response.data.data || []);
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to load notifications.');
-    }
-  };
 
   useEffect(() => {
     const init = async () => {
@@ -29,72 +21,51 @@ const Notifications = () => {
       setLoading(false);
     };
     init();
-  }, []);
-
-  const handleMarkAsRead = async (id) => {
-    try {
-      await axiosInstance.patch(`/notifications/${id}/read`);
-      setNotifications((prev) =>
-        prev.map((n) => (n._id === id ? { ...n, read: true } : n))
-      );
-      toast.success('Notification marked as read');
-    } catch (err) {
-      console.error(err);
-    }
-  };
+  }, [fetchNotifications]);
 
   const handleMarkAllRead = async () => {
     setActionLoading(true);
     try {
-      await axiosInstance.patch('/notifications/read-all');
-      setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+      await markAllRead();
       toast.success('All notifications marked as read!');
-    } catch (err) {
-      console.error(err);
+    } catch {
       toast.error('Failed to update notifications.');
     } finally {
       setActionLoading(false);
     }
   };
 
-  const handleDeleteNotification = async (id) => {
-    try {
-      await axiosInstance.delete(`/notifications/${id}`);
-      setNotifications((prev) => prev.filter((n) => n._id !== id));
-      toast.success('Notification deleted');
-    } catch (err) {
-      console.error(err);
-      toast.error('Failed to delete notification.');
-    }
-  };
-
-  const getNotificationStyle = (type, read) => {
+  const getNotificationStyle = (type, isRead) => {
     const base = 'flex gap-4 p-4 rounded-2xl border transition-all duration-200 bg-white dark:bg-gray-900 ';
-    const borderStyle = read 
-      ? 'border-gray-100 dark:border-gray-800 opacity-60' 
+    const borderStyle = isRead
+      ? 'border-gray-100 dark:border-gray-800 opacity-60'
       : 'border-l-4 shadow-sm border-gray-150 ';
 
     switch (type) {
-      case 'success':
+      case 'meeting':
         return {
-          card: base + borderStyle + (read ? '' : 'border-l-emerald-500 border-emerald-100/50 dark:border-emerald-950/20'),
+          card: base + borderStyle + (isRead ? '' : 'border-l-[#0084D1] border-[#0084D1]/20'),
+          icon: <FaCalendarAlt className="h-5 w-5 text-[#0084D1]" />,
+        };
+      case 'task':
+        return {
+          card: base + borderStyle + (isRead ? '' : 'border-l-emerald-500 border-emerald-100/50 dark:border-emerald-950/20'),
           icon: <FaCheckCircle className="h-5 w-5 text-emerald-500" />,
         };
-      case 'warning':
+      case 'message':
         return {
-          card: base + borderStyle + (read ? '' : 'border-l-amber-500 border-amber-100/50 dark:border-amber-950/20'),
+          card: base + borderStyle + (isRead ? '' : 'border-l-amber-500 border-amber-100/50 dark:border-amber-950/20'),
           icon: <FaExclamationTriangle className="h-5 w-5 text-amber-500" />,
         };
-      case 'error':
+      case 'group':
         return {
-          card: base + borderStyle + (read ? '' : 'border-l-red-500 border-red-100/50 dark:border-red-950/20'),
-          icon: <FaTimesCircle className="h-5 w-5 text-red-500" />,
+          card: base + borderStyle + (isRead ? '' : 'border-l-purple-500 border-purple-100/50 dark:border-purple-950/20'),
+          icon: <FaBell className="h-5 w-5 text-purple-500" />,
         };
-      case 'info':
       default:
         return {
-          card: base + borderStyle + (read ? '' : 'border-l-[#0084D1] border-[#0084D1]/20'),
-          icon: <FaInfoCircle className="h-5 w-5 text-[#0084D1]" />,
+          card: base + borderStyle + (isRead ? '' : 'border-l-gray-400'),
+          icon: <FaTimesCircle className="h-5 w-5 text-gray-400" />,
         };
     }
   };
@@ -106,8 +77,6 @@ const Notifications = () => {
       </div>
     );
   }
-
-  const unreadCount = notifications.filter((n) => !n.read).length;
 
   return (
     <div className="space-y-6">
@@ -147,15 +116,24 @@ const Notifications = () => {
       ) : (
         <div className="space-y-3 max-w-3xl">
           {notifications.map((notif) => {
-            const styles = getNotificationStyle(notif.type, notif.read);
+            const styles = getNotificationStyle(notif.type, notif.isRead);
             return (
-              <div key={notif._id} className={styles.card}>
+              <div
+                key={notif._id}
+                className={`${styles.card} cursor-pointer`}
+                onClick={() => { markAsRead(notif._id); if (notif.link) navigate(notif.link); }}
+              >
                 {/* Icon */}
                 <div className="mt-0.5 flex-shrink-0">{styles.icon}</div>
-                
+
                 {/* Body */}
                 <div className="flex-1 space-y-1">
-                  <p className={`text-sm text-gray-800 dark:text-gray-200 ${notif.read ? '' : 'font-semibold'}`}>
+                  {notif.title && (
+                    <p className={`text-xs font-bold ${notif.isRead ? 'text-gray-500 dark:text-gray-400' : 'text-[#0084D1]'}`}>
+                      {notif.title}
+                    </p>
+                  )}
+                  <p className={`text-sm text-gray-800 dark:text-gray-200 ${notif.isRead ? '' : 'font-semibold'}`}>
                     {notif.message}
                   </p>
                   <p className="text-[10px] text-gray-400">
@@ -164,10 +142,10 @@ const Notifications = () => {
                 </div>
 
                 {/* Actions */}
-                <div className="flex items-start gap-1 flex-shrink-0">
-                  {!notif.read && (
+                <div className="flex items-start gap-1 flex-shrink-0" onClick={(e) => e.stopPropagation()}>
+                  {!notif.isRead && (
                     <button
-                      onClick={() => handleMarkAsRead(notif._id)}
+                      onClick={() => markAsRead(notif._id)}
                       className="rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-[#0084D1] dark:hover:bg-gray-800"
                       title={t('notifications.markAsRead')}
                     >
@@ -175,7 +153,7 @@ const Notifications = () => {
                     </button>
                   )}
                   <button
-                    onClick={() => handleDeleteNotification(notif._id)}
+                    onClick={() => deleteNotification(notif._id)}
                     className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-950/20"
                     title={t('notifications.deleteNotification')}
                   >

@@ -6,6 +6,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 import { AuthProvider } from './context/AuthContext';
 import { ModalProvider } from './context/ModalContext';
+import { NotificationProvider } from './context/NotificationContext';
 
 import Sidebar from './components/layout/Sidebar';
 import Navbar from './components/layout/Navbar';
@@ -40,6 +41,7 @@ const AdminPanel = lazy(() => import('./pages/AdminPanel'));
 const Instructors = lazy(() => import('./pages/Instructors'));
 const InstructorGroups = lazy(() => import('./pages/InstructorGroups'));
 const MyGroups = lazy(() => import('./pages/MyGroups'));
+const Notifications = lazy(() => import('./pages/Notifications'));
 const AdminDashboard = lazy(() => import('./pages/AdminDashboard'));
 const AdminInstructors = lazy(() => import('./pages/AdminInstructors'));
 const AdminStudents = lazy(() => import('./pages/AdminStudents'));
@@ -95,6 +97,7 @@ function App() {
   return (
     <AuthProvider>
       <ModalProvider>
+        <NotificationProvider>
         <Router>
         <Suspense fallback={<Loader />}>
         <Routes>
@@ -131,6 +134,7 @@ function App() {
             <Route path="/resources" element={<RoleProtectedRoute allowedRoles={['student','instructor']}><ProtectedRoute allowedRoles={['student','instructor']}><Resources /></ProtectedRoute></RoleProtectedRoute>} />
             <Route path="/chat" element={<RoleProtectedRoute allowedRoles={['student','instructor']}><ProtectedRoute allowedRoles={['student','instructor']}><Chat /></ProtectedRoute></RoleProtectedRoute>} />
             <Route path="/challenges" element={<RoleProtectedRoute allowedRoles={['student','instructor']}><ProtectedRoute allowedRoles={['student','instructor']}><Challenges /></ProtectedRoute></RoleProtectedRoute>} />
+            <Route path="/notifications" element={<RoleProtectedRoute allowedRoles={['admin','instructor','student']}><Notifications /></RoleProtectedRoute>} />
             <Route path="/profile" element={<RoleProtectedRoute allowedRoles={['admin','instructor','student']}><Profile /></RoleProtectedRoute>} />
 
             {/* INSTRUCTOR ROUTES */}
@@ -147,11 +151,11 @@ function App() {
           </Route>
 
           <Route path="*" element={<NotFound />} />
-        </Routes>
+          </Routes>
         </Suspense>
-      <AIChatbot />
-      </Router>
-
+        <AIChatbot />
+        </Router>
+        </NotificationProvider>
       <ToastContainer
         position="top-right"
         autoClose={3500}

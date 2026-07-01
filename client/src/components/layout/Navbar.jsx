@@ -1,15 +1,17 @@
 import { useEffect, useState, useRef, memo } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { FaBars, FaMoon, FaSun, FaSignOutAlt, FaBell, FaCheckCircle, FaTimesCircle } from 'react-icons/fa';
+import { FaBars, FaMoon, FaSun, FaSignOutAlt, FaBell, FaCheckCircle, FaTimesCircle, FaCalendarAlt, FaCheck, FaTrash } from 'react-icons/fa';
 import { toast } from 'react-toastify';
 import { useAuth } from '../../context/AuthContext';
+import { useNotifications } from '../../context/NotificationContext';
 import axiosInstance from '../../api/axios';
 import LanguageSwitcher from '../LanguageSwitcher';
 
 const Navbar = ({ onMenuToggle }) => {
   const { t } = useTranslation();
   const { user, logout } = useAuth();
+  const { notifications, unreadCount, markAsRead, markAllRead, deleteNotification } = useNotifications();
   const navigate = useNavigate();
   const location = useLocation();
   const dropdownRef = useRef(null);
@@ -17,6 +19,7 @@ const Navbar = ({ onMenuToggle }) => {
   const [pendingRequests, setPendingRequests] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
   const [processing, setProcessing] = useState(null);
+  const [activeTab, setActiveTab] = useState('notifications');
 
   const getPageName = () => {
     const path = location.pathname.replace(/^\//, '');
@@ -65,9 +68,7 @@ const Navbar = ({ onMenuToggle }) => {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Close dropdown on route change
   useEffect(() => {
-    // eslint-disable-next-line react-hooks/set-state-in-effect
     setShowDropdown(false);
   }, [location.pathname]);
 
@@ -97,7 +98,7 @@ const Navbar = ({ onMenuToggle }) => {
     }
   };
 
-  const count = pendingRequests.length;
+  const totalCount = unreadCount + pendingRequests.length;
 
   const getAvatarUrl = (avatarPath) => {
     if (!avatarPath) return '';
@@ -107,6 +108,30 @@ const Navbar = ({ onMenuToggle }) => {
   const handleLogout = () => {
     logout();
     navigate('/login');
+  };
+
+  const getNotificationIcon = (type) => {
+    switch (type) {
+      case 'meeting': return <FaCalendarAlt className="h-4 w-4 text-[#0084D1]" />;
+      case 'task': return <FaCheckCircle className="h-4 w-4 text-emerald-500" />;
+      case 'message': return <FaBell className="h-4 w-4 text-amber-500" />;
+      case 'group': return <FaBell className="h-4 w-4 text-purple-500" />;
+      default: return <FaBell className="h-4 w-4 text-gray-400" />;
+    }
+  };
+
+  const formatTimeAgo = (dateStr) => {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diffMs = now - date;
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 1) return 'just now';
+    if (diffMins < 60) return `${diffMins}m ago`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}h ago`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays < 7) return `${diffDays}d ago`;
+    return date.toLocaleDateString();
   };
 
   return (
@@ -156,95 +181,168 @@ const Navbar = ({ onMenuToggle }) => {
           {darkMode ? <FaSun className="h-5 w-5 text-amber-500" /> : <FaMoon className="h-5 w-5 text-[#0084D1]" />}
         </button>
 
-        {/* Bell Notification — only for instructor */}
-        {user?.role === 'instructor' && (
-          <div className="relative" ref={dropdownRef}>
-            <button
-              onClick={() => setShowDropdown(prev => !prev)}
-              type="button"
-              className="relative flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
-              title={t('nav.pendingRequests')}
-            >
-              <FaBell className="h-5 w-5" />
-              {count > 0 && (
-                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
-                  {count > 9 ? '9+' : count}
-                </span>
-              )}
-            </button>
-
-            {/* Dropdown backdrop — mobile only */}
-            {showDropdown && (
-              <div
-                className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
-                onClick={() => setShowDropdown(false)}
-              />
+        {/* Notification Bell — all roles */}
+        <div className="relative" ref={dropdownRef}>
+          <button
+            onClick={() => setShowDropdown(prev => !prev)}
+            type="button"
+            className="relative flex h-9 w-9 items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-800"
+            title="Notifications"
+          >
+            <FaBell className="h-5 w-5" />
+            {totalCount > 0 && (
+              <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-red-500 px-1 text-[9px] font-bold text-white">
+                {totalCount > 9 ? '9+' : totalCount}
+              </span>
             )}
+          </button>
 
-            {/* Dropdown */}
-            {showDropdown && (
-              <div className="fixed inset-x-4 top-16 z-50 md:z-auto md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 md:w-80 origin-top-right animate-fadeIn rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900 overflow-hidden" style={{ animation: 'fadeIn 0.2s ease-out' }}>
-                <div className="border-b border-gray-100 px-4 py-3 dark:border-gray-800">
-                  <p className="text-sm font-bold text-gray-900 dark:text-white">
-                    {t('nav.pendingRequests')}
-                  </p>
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    {count} {count === 1 ? t('nav.studentWaiting') : t('nav.studentsWaiting')}
-                  </p>
-                </div>
-                <div className="max-h-[60vh] md:max-h-72 overflow-y-auto">
-                  {count === 0 ? (
-                    <div className="px-4 py-8 text-center text-sm text-gray-400">
-                      {t('nav.noPendingRequests')}
-                    </div>
-                  ) : (
-                    pendingRequests.map((req) => (
-                      <div key={`${req.groupId}-${req.student.id}`} className="border-b border-gray-50 px-4 py-3 last:border-0 dark:border-gray-800/50">
-                        <div className="flex items-center gap-3">
-                          <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
-                            {req.student.avatar ? (
-                              <img src={getAvatarUrl(req.student.avatar)} alt={req.student.name} className="h-full w-full object-cover object-top" />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FFB900] to-[#0084D1] text-xs font-bold text-white">
-                                {req.student.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'S'}
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0 flex-1">
-                            <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
-                              {req.student.name}
-                            </p>
-                            <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
-                              {t('nav.wantsToJoin')}: <span className="font-medium text-gray-700 dark:text-gray-300">{req.groupName}</span>
-                            </p>
-                          </div>
-                        </div>
-                        <div className="mt-2 flex gap-2">
-                          <button
-                            onClick={() => handleApprove(req.groupId, req.student.id)}
-                            disabled={processing === `approve-${req.groupId}-${req.student.id}`}
-                            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-50 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-950/20 dark:text-emerald-400"
-                          >
-                            <FaCheckCircle className="h-3 w-3" />
-                            {t('nav.approve')}
-                          </button>
-                          <button
-                            onClick={() => handleReject(req.groupId, req.student.id)}
-                            disabled={processing === `reject-${req.groupId}-${req.student.id}`}
-                            className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-100 disabled:opacity-50 dark:bg-red-950/20 dark:text-red-400"
-                          >
-                            <FaTimesCircle className="h-3 w-3" />
-                            {t('nav.reject')}
-                          </button>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
+          {/* Dropdown backdrop — mobile only */}
+          {showDropdown && (
+            <div
+              className="fixed inset-0 z-40 bg-black/30 backdrop-blur-sm md:hidden"
+              onClick={() => setShowDropdown(false)}
+            />
+          )}
+
+          {/* Dropdown */}
+          {showDropdown && (
+            <div className="fixed inset-x-4 top-16 z-50 md:z-auto md:absolute md:inset-x-auto md:right-0 md:top-full md:mt-2 md:w-80 origin-top-right animate-fadeIn rounded-2xl border border-gray-200 bg-white shadow-xl dark:border-gray-700 dark:bg-gray-900 overflow-hidden" style={{ animation: 'fadeIn 0.2s ease-out' }}>
+              {/* Tabs */}
+              <div className="flex border-b border-gray-100 dark:border-gray-800">
+                <button
+                  onClick={() => setActiveTab('notifications')}
+                  className={`flex-1 px-3 py-2.5 text-xs font-bold transition-colors ${
+                    activeTab === 'notifications'
+                      ? 'text-[#0084D1] border-b-2 border-[#0084D1]'
+                      : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                  }`}
+                >
+                  Notifications ({unreadCount})
+                </button>
+                {user?.role === 'instructor' && (
+                  <button
+                    onClick={() => setActiveTab('pending')}
+                    className={`flex-1 px-3 py-2.5 text-xs font-bold transition-colors ${
+                      activeTab === 'pending'
+                        ? 'text-[#0084D1] border-b-2 border-[#0084D1]'
+                        : 'text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200'
+                    }`}
+                  >
+                    Requests ({pendingRequests.length})
+                  </button>
+                )}
               </div>
-            )}
-          </div>
-        )}
+
+              <div className="max-h-[60vh] md:max-h-80 overflow-y-auto">
+                {activeTab === 'notifications' && (
+                  <>
+                    {notifications.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-sm text-gray-400">
+                        No notifications yet
+                      </div>
+                    ) : (
+                      notifications.slice(0, 20).map((notif) => (
+                        <div key={notif._id} className="flex items-start gap-3 border-b border-gray-50 px-4 py-3 last:border-0 dark:border-gray-800/50 hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                          <div className="mt-0.5 flex-shrink-0">
+                            {getNotificationIcon(notif.type)}
+                          </div>
+                          <div className="min-w-0 flex-1 cursor-pointer" onClick={() => { markAsRead(notif._id); if (notif.link) navigate(notif.link); }}>
+                            <p className={`text-xs ${notif.isRead ? 'text-gray-600 dark:text-gray-400' : 'font-semibold text-gray-900 dark:text-white'}`}>
+                              {notif.message}
+                            </p>
+                            <p className="mt-0.5 text-[10px] text-gray-400">
+                              {formatTimeAgo(notif.createdAt)}
+                            </p>
+                          </div>
+                          <div className="flex items-start gap-0.5 flex-shrink-0">
+                            {!notif.isRead && (
+                              <button
+                                onClick={() => markAsRead(notif._id)}
+                                className="rounded p-1 text-gray-400 hover:text-[#0084D1] hover:bg-gray-100 dark:hover:bg-gray-700"
+                                title="Mark as read"
+                              >
+                                <FaCheck className="h-3 w-3" />
+                              </button>
+                            )}
+                            <button
+                              onClick={() => deleteNotification(notif._id)}
+                              className="rounded p-1 text-gray-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/20"
+                              title="Delete"
+                            >
+                              <FaTrash className="h-3 w-3" />
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                    <div className="border-t border-gray-100 px-4 py-2 dark:border-gray-800">
+                      <Link
+                        to="/notifications"
+                        onClick={() => setShowDropdown(false)}
+                        className="block w-full text-center text-xs font-semibold text-[#0084D1] hover:underline"
+                      >
+                        View all notifications
+                      </Link>
+                    </div>
+                  </>
+                )}
+
+                {activeTab === 'pending' && (
+                  <>
+                    {pendingRequests.length === 0 ? (
+                      <div className="px-4 py-8 text-center text-sm text-gray-400">
+                        No pending requests
+                      </div>
+                    ) : (
+                      pendingRequests.map((req) => (
+                        <div key={`${req.groupId}-${req.student.id}`} className="border-b border-gray-50 px-4 py-3 last:border-0 dark:border-gray-800/50">
+                          <div className="flex items-center gap-3">
+                            <div className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
+                              {req.student.avatar ? (
+                                <img src={getAvatarUrl(req.student.avatar)} alt={req.student.name} className="h-full w-full object-cover object-top" />
+                              ) : (
+                                <div className="flex h-full w-full items-center justify-center bg-gradient-to-br from-[#FFB900] to-[#0084D1] text-xs font-bold text-white">
+                                  {req.student.name?.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'S'}
+                                </div>
+                              )}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-sm font-semibold text-gray-900 dark:text-white truncate">
+                                {req.student.name}
+                              </p>
+                              <p className="text-xs text-gray-500 dark:text-gray-400 truncate">
+                                Wants to join: <span className="font-medium text-gray-700 dark:text-gray-300">{req.groupName}</span>
+                              </p>
+                            </div>
+                          </div>
+                          <div className="mt-2 flex gap-2">
+                            <button
+                              onClick={() => handleApprove(req.groupId, req.student.id)}
+                              disabled={processing === `approve-${req.groupId}-${req.student.id}`}
+                              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-emerald-50 py-1.5 text-xs font-semibold text-emerald-600 hover:bg-emerald-100 disabled:opacity-50 dark:bg-emerald-950/20 dark:text-emerald-400"
+                            >
+                              <FaCheckCircle className="h-3 w-3" />
+                              Approve
+                            </button>
+                            <button
+                              onClick={() => handleReject(req.groupId, req.student.id)}
+                              disabled={processing === `reject-${req.groupId}-${req.student.id}`}
+                              className="flex flex-1 items-center justify-center gap-1.5 rounded-lg bg-red-50 py-1.5 text-xs font-semibold text-red-500 hover:bg-red-100 disabled:opacity-50 dark:bg-red-950/20 dark:text-red-400"
+                            >
+                              <FaTimesCircle className="h-3 w-3" />
+                              Reject
+                            </button>
+                          </div>
+                        </div>
+                      ))
+                    )}
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </div>
 
         {/* Vertical Separator */}
         <div className="h-6 w-px bg-gray-200 dark:bg-gray-800"></div>
