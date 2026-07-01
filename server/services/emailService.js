@@ -1,27 +1,18 @@
-const nodemailer = require('nodemailer');
+const { BrevoClient } = require('@getbrevo/brevo');
 
-const transporter = nodemailer.createTransport({
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false,
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+const client = new BrevoClient({ apiKey: process.env.BREVO_API_KEY });
 
-transporter.verify().then(() => {
-  console.log('[emailService] SMTP connection verified');
-}).catch(err => {
-  console.error('[emailService] SMTP verification failed:', err.message);
-});
+const SENDER = {
+  name: process.env.BREVO_SENDER_NAME || 'NAJAH',
+  email: process.env.BREVO_SENDER_EMAIL || 'noreply@najah.com',
+};
 
 const sendVerificationCodeEmail = async (to, code) => {
-  const mailOptions = {
-    from: `"NAJAH" <${process.env.EMAIL_USER}>`,
-    to,
+  await client.transactionalEmails.sendTransacEmail({
+    sender: SENDER,
+    to: [{ email: to }],
     subject: 'Your NAJAH verification code',
-    html: `
+    htmlContent: `
       <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
         <div style="text-align: center; padding: 24px 0;">
           <h1 style="color: #0084D1; margin: 0;">NAJAH</h1>
@@ -44,17 +35,16 @@ const sendVerificationCodeEmail = async (to, code) => {
           If you did not create an account, you can ignore this email.
         </p>
       </div>`,
-  };
-  await transporter.sendMail(mailOptions);
+  });
 };
 
 const sendPasswordResetEmail = async (to, token) => {
   const resetLink = `${process.env.CLIENT_URL}/reset-password/${token}`;
-  const mailOptions = {
-    from: `"NAJAH" <${process.env.EMAIL_USER}>`,
-    to,
+  await client.transactionalEmails.sendTransacEmail({
+    sender: SENDER,
+    to: [{ email: to }],
     subject: 'Reset your NAJAH password',
-    html: `
+    htmlContent: `
       <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
         <h2 style="color: #0084D1;">Password Reset Request</h2>
         <p>Click the button below to reset your password. This link expires in 1 hour.</p>
@@ -64,17 +54,16 @@ const sendPasswordResetEmail = async (to, token) => {
         </a>
         <p style="margin-top: 24px; color: #999; font-size: 12px;">If you didn't request this, please ignore this email.</p>
       </div>`,
-  };
-  await transporter.sendMail(mailOptions);
+  });
 };
 
 const sendVerificationEmail = async (to, token) => {
   const verifyLink = `${process.env.CLIENT_URL}/verify/${token}`;
-  const mailOptions = {
-    from: `"NAJAH" <${process.env.EMAIL_USER}>`,
-    to,
+  await client.transactionalEmails.sendTransacEmail({
+    sender: SENDER,
+    to: [{ email: to }],
     subject: 'Confirm your NAJAH account',
-    html: `
+    htmlContent: `
       <div style="font-family: Arial, sans-serif; max-width: 480px; margin: 0 auto;">
         <h2 style="color: #0084D1;">Welcome to NAJAH!</h2>
         <p>Please confirm your account by clicking the button below:</p>
@@ -83,8 +72,7 @@ const sendVerificationEmail = async (to, token) => {
           Confirm my account
         </a>
       </div>`,
-  };
-  await transporter.sendMail(mailOptions);
+  });
 };
 
 module.exports = { sendVerificationCodeEmail, sendPasswordResetEmail, sendVerificationEmail };
